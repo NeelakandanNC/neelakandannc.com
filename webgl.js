@@ -4,141 +4,198 @@ const container = document.querySelector('#webgl-container');
 
 // Scene setup
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+scene.background = new THREE.Color(0x000000); // Pure black void
+scene.fog = new THREE.FogExp2(0x000000, 0.03); // Fog to hide the end
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 container.appendChild(renderer.domElement);
 
-// Load Texture
-const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('/background.jpg');
+// --- Geometry: The Greek Column ---
+// A simple cylinder with a lot of segments to look smooth
+// RadiusTop, RadiusBottom, Height, RadialSegments
+const columnGeometry = new THREE.CylinderGeometry(0.6, 0.6, 12, 32, 1, true);
 
-// Geometry & Material
-// We'll update the geometry aspect ratio once the texture loads
-const geometry = new THREE.PlaneGeometry(16, 9, 32, 32);
-
-const material = new THREE.ShaderMaterial({
+// --- Material: Cyber Marble Shader ---
+const columnMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTime: { value: 0 },
-        uScroll: { value: 0 },
-        uTexture: { value: texture },
-        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        uImageResolution: { value: new THREE.Vector2(1920, 1080) } // Default assumption, updated later
+        uColor: { value: new THREE.Color('#FFFFFF') },
+        uAccent: { value: new THREE.Color('#00FFFF') }
     },
     vertexShader: `
-        uniform float uTime;
-        uniform float uScroll;
         varying vec2 vUv;
-        varying float vElevation;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
 
         void main() {
             vUv = uv;
-            vec3 pos = position;
-            
-            // Subtle wave effect
-            float wave = sin(pos.y * 1.5 + uTime * 0.5 + uScroll * 2.0) * 0.3;
-            pos.z += wave * (uScroll * 2.0); // Effect increases with scroll
-            
-            // Twist effect based on scroll
-            pos.x += sin(uScroll * 1.0) * 1.0 * pos.y * 0.1;
-
-            vElevation = wave;
-            
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vViewPosition = -mvPosition.xyz;
+            gl_Position = projectionMatrix * mvPosition;
         }
     `,
     fragmentShader: `
-        uniform sampler2D uTexture;
-        uniform float uScroll;
-        uniform vec2 uResolution;
-        uniform vec2 uImageResolution;
         varying vec2 vUv;
-        varying float vElevation;
-
-        // Function to cover the texture like CSS background-size: cover
-        vec2 cover(vec2 uv, vec2 resolution, vec2 imageResolution) {
-            vec2 ratio = resolution / imageResolution;
-            float maxRatio = max(ratio.x, ratio.y);
-            vec2 newSize = imageResolution * maxRatio;
-            vec2 offset = (newSize - resolution) / 2.0;
-            vec2 newUv = uv * resolution / newSize + offset / newSize;
-            return newUv;
-        }
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        
+        uniform vec3 uColor;
+        uniform vec3 uAccent;
+        uniform float uTime;
 
         void main() {
-            vec2 uv = cover(vUv, uResolution, uImageResolution);
-            vec4 texColor = texture2D(uTexture, uv);
+            // "Fluting" effect (vertical grooves) using sine wave on UV x
+            // A greek column typically has ~20-24 flutes
+            float flutes = sin(vUv.x * 3.14159 * 20.0);
             
-            // Grayscale to "Electric Blue" conversion logic
-            float gray = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
+            // Base color mix based on flutes (shadows in grooves)
+            vec3 base = mix(uColor * 0.8, uColor, smoothstep(-0.2, 0.2, flutes));
             
-            // Base electric blue color
-            vec3 electricBlue = vec3(0.0, 1.0, 1.0);
+            // Rim lighting (Fresnel effect) for the "Electric Blue" glow
+            vec3 normal = normalize(vNormal);
+            vec3 viewDir = normalize(vViewPosition);
+            float fresnel = pow(1.0 - dot(normal, viewDir), 3.0);
             
-            // Mix original with electric blue based on scroll/style
-            vec3 finalColor = mix(texColor.rgb, electricBlue * gray * 1.5, 0.3); // Slight tint
+            // Add a vertical scanning holographic line
+            float scan = smoothstep(0.4, 0.5, sin(vUv.y * 10.0 - uTime * 2.0));
             
-            // RGB Shift effect on scroll
-            float shift = uScroll * 0.05;
-            float r = texture2D(uTexture, uv + vec2(shift, 0.0)).r;
-            float g = texture2D(uTexture, uv).g;
-            float b = texture2D(uTexture, uv - vec2(shift, 0.0)).b;
-            
-            vec3 shiftingColor = vec3(r, g, b);
+            vec3 finalColor = base + (uAccent * fresnel * 2.0);
+            finalColor += uAccent * scan * 0.1; // Subtle scanline
 
-            // Combine effects
-            gl_FragColor = vec4(shiftingColor, 1.0);
-            
-            // Darken slightly for text readability
-            gl_FragColor.rgb *= 0.8;
+            gl_FragColor = vec4(finalColor, 1.0);
         }
     `,
-    side: THREE.DoubleSide
-    // wireframe: true // Uncomment for matrix look
+    transparent: false
 });
 
-const mesh = new THREE.Mesh(geometry, material);
+// --- Instancing for Infinite Hallway ---
+const count = 40; // 20 pairs of columns
+const mesh = new THREE.InstancedMesh(columnGeometry, columnMaterial, count);
 scene.add(mesh);
 
-camera.position.z = 10;
+// Set initial positions
+const gap = 8; // Distance between pairs
+const width = 10; // Width of the hallway
+const dummy = new THREE.Object3D();
 
-// Update aspect ratio when texture loads
-texture.image.onload = () => {
-    material.uniforms.uImageResolution.value.set(texture.image.width, texture.image.height);
-    const aspect = texture.image.width / texture.image.height;
-    // Adjust scale to cover screen roughly at z=0 (camera at 10)
-    // Visible height at z=0 is 2 * tan(fov/2) * distance
-    const vFov = camera.fov * Math.PI / 180;
-    const height = 2 * Math.tan(vFov / 2) * camera.position.z;
-    const width = height * camera.aspect;
+// Logic: We place them from Z = -5 to Z = -100 (into the distance)
+// We will move the camera forward, not the pillars (or move pillars back, relatively)
+// To make it infinite, we update positions in the loop. But actually, moving camera is easier with modulo.
 
-    mesh.scale.set(width * 1.5, height * 1.5, 1); // Scale up to ensure cover
-};
+for (let i = 0; i < count; i += 2) {
+    // Left Column
+    dummy.position.set(-width / 2, 0, - (i / 2) * gap);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+
+    // Right Column
+    dummy.position.set(width / 2, 0, - (i / 2) * gap);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i + 1, dummy.matrix);
+}
+
+// Floor (Reflective surface)
+// Just a simple grid or plane
+const floorGeo = new THREE.PlaneGeometry(50, 200, 50, 200);
+const floorMat = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.1
+});
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -6; // Below columns
+scene.add(floor);
+
+
+// --- Lighting ---
+// Shader handles most, but let's add ambient just in case needed later
+const ambient = new THREE.AmbientLight(0xffffff, 0.1);
+scene.add(ambient);
+
+
+camera.position.y = 0; // Eye level
+camera.position.z = 5;
 
 // Scroll Logic
 let scrollY = 0;
 let currentScroll = 0;
 
 window.addEventListener('scroll', () => {
-    scrollY = window.scrollY / window.innerHeight; // Normalize roughly
+    // Normalize scroll to get a distance meter
+    scrollY = window.scrollY * 0.05;
 });
 
-// Animation Loop
 const clock = new THREE.Clock();
 
 function animate() {
-    const elapsedTime = clock.getElapsedTime();
+    const time = clock.getElapsedTime();
+    columnMaterial.uniforms.uTime.value = time;
 
-    // Smooth scroll interpolation
+    // Smooth scroll
     currentScroll += (scrollY - currentScroll) * 0.1;
 
-    material.uniforms.uTime.value = elapsedTime;
-    material.uniforms.uScroll.value = currentScroll;
+    // INFINITE RUN LOGIC
+    // Instead of moving pillars, we move camera.
+    // We want to loop every gap * 10 or so? 
+    // Actually, simple infinite logic:
+    // Move camera forward.
+    // If camera passes a certain point, we don't reset camera (keeps scroll logic simple),
+    // but we might run out of pillars.
 
-    // Subtle rotation/movement
-    // mesh.rotation.y = currentScroll * 0.1;
+    // Better Approach: Move Pillars relative to camera modulus
+    const totalLength = (count / 2) * gap;
+
+    // Virtual position based on scroll
+    // We want to fly *forward* (negative Z) as we scroll down.
+    const flyPos = currentScroll;
+
+    for (let i = 0; i < count; i += 2) {
+        // Calculate z position relative to loop
+        // We want them to appear in front of camera
+
+        let zPos = - (i / 2) * gap + (flyPos % totalLength);
+
+        // Wrap around: if it goes behind camera (z > 5), move it to far back
+        if (zPos > 5) {
+            zPos -= totalLength;
+        }
+        // Also if it's too far (before loop start), though module handles most.
+        // Let's rely on modulo centering.
+
+        // Actually, logic is: z = (original_z + scroll) % totalLength
+        // Base original_z is -(i/2)*gap
+        // We want range roughly [5, -totalLength+5]
+
+        // Simple Wrap:
+        let dist = (flyPos + (i / 2) * gap) % totalLength;
+        // dist goes from 0 to totalLength.
+        // We want Z to go from slightly positive (behind us) to negative (far away)
+        // Let's map dist 0 -> Z=5, dist totalLength -> Z = -totalLength + 5
+
+        let actualZ = 5 - dist;
+
+        // Left
+        dummy.position.set(-width / 2, 0, actualZ);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+
+        // Right
+        dummy.position.set(width / 2, 0, actualZ);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i + 1, dummy.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+
+    // Floor movement
+    floor.position.z = (currentScroll % 10) - 50; // Simple loop
+
 
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
@@ -152,12 +209,4 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
-
-    // Recalculate cover scale
-    const vFov = camera.fov * Math.PI / 180;
-    const height = 2 * Math.tan(vFov / 2) * camera.position.z;
-    const width = height * camera.aspect;
-    mesh.scale.set(width * 1.5, height * 1.5, 1);
 });
