@@ -11,39 +11,21 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 container.appendChild(renderer.domElement);
 
-// Create a Placeholder Texture
-const canvas = document.createElement('canvas');
-canvas.width = 1024;
-canvas.height = 1024;
-const ctx = canvas.getContext('2d');
-ctx.fillStyle = '#111';
-ctx.fillRect(0, 0, 1024, 1024);
-ctx.fillStyle = '#00FFFF'; // Electric Blue
-ctx.font = 'bold 100px Arial';
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-ctx.fillText('NEELAKANDAN', 512, 512);
-ctx.strokeStyle = '#00FFFF';
-ctx.lineWidth = 10;
-ctx.strokeRect(50, 50, 924, 924);
-
-// Add some random lines for "tech" feel
-for (let i = 0; i < 20; i++) {
-    ctx.beginPath();
-    ctx.moveTo(Math.random() * 1024, Math.random() * 1024);
-    ctx.lineTo(Math.random() * 1024, Math.random() * 1024);
-    ctx.stroke();
-}
-
-const texture = new THREE.CanvasTexture(canvas);
+// Load Texture
+const textureLoader = new THREE.TextureLoader();
+const texture = textureLoader.load('/background.jpg');
 
 // Geometry & Material
-const geometry = new THREE.PlaneGeometry(10, 10, 32, 32);
+// We'll update the geometry aspect ratio once the texture loads
+const geometry = new THREE.PlaneGeometry(16, 9, 32, 32);
+
 const material = new THREE.ShaderMaterial({
     uniforms: {
         uTime: { value: 0 },
         uScroll: { value: 0 },
-        uTexture: { value: texture }
+        uTexture: { value: texture },
+        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        uImageResolution: { value: new THREE.Vector2(1920, 1080) } // Default assumption, updated later
     },
     vertexShader: `
         uniform float uTime;
@@ -55,12 +37,12 @@ const material = new THREE.ShaderMaterial({
             vUv = uv;
             vec3 pos = position;
             
-            // Scroll distortion effect
-            float wave = sin(pos.y * 2.0 + uTime + uScroll * 5.0) * 0.5;
-            pos.z += wave * (uScroll); // Effect increases with scroll
+            // Subtle wave effect
+            float wave = sin(pos.y * 1.5 + uTime * 0.5 + uScroll * 2.0) * 0.3;
+            pos.z += wave * (uScroll * 2.0); // Effect increases with scroll
             
             // Twist effect based on scroll
-            pos.x += sin(uScroll * 2.0) * 2.0;
+            pos.x += sin(uScroll * 1.0) * 1.0 * pos.y * 0.1;
 
             vElevation = wave;
             
@@ -70,18 +52,47 @@ const material = new THREE.ShaderMaterial({
     fragmentShader: `
         uniform sampler2D uTexture;
         uniform float uScroll;
+        uniform vec2 uResolution;
+        uniform vec2 uImageResolution;
         varying vec2 vUv;
         varying float vElevation;
 
+        // Function to cover the texture like CSS background-size: cover
+        vec2 cover(vec2 uv, vec2 resolution, vec2 imageResolution) {
+            vec2 ratio = resolution / imageResolution;
+            float maxRatio = max(ratio.x, ratio.y);
+            vec2 newSize = imageResolution * maxRatio;
+            vec2 offset = (newSize - resolution) / 2.0;
+            vec2 newUv = uv * resolution / newSize + offset / newSize;
+            return newUv;
+        }
+
         void main() {
-            vec4 texColor = texture2D(uTexture, vUv);
+            vec2 uv = cover(vUv, uResolution, uImageResolution);
+            vec4 texColor = texture2D(uTexture, uv);
             
-            // Electric blue tint based on elevation/distortion
-            vec3 color = texColor.rgb;
-            color.b += vElevation * 2.0;
-            color.g += vElevation;
+            // Grayscale to "Electric Blue" conversion logic
+            float gray = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
             
-            gl_FragColor = vec4(color, 1.0);
+            // Base electric blue color
+            vec3 electricBlue = vec3(0.0, 1.0, 1.0);
+            
+            // Mix original with electric blue based on scroll/style
+            vec3 finalColor = mix(texColor.rgb, electricBlue * gray * 1.5, 0.3); // Slight tint
+            
+            // RGB Shift effect on scroll
+            float shift = uScroll * 0.05;
+            float r = texture2D(uTexture, uv + vec2(shift, 0.0)).r;
+            float g = texture2D(uTexture, uv).g;
+            float b = texture2D(uTexture, uv - vec2(shift, 0.0)).b;
+            
+            vec3 shiftingColor = vec3(r, g, b);
+
+            // Combine effects
+            gl_FragColor = vec4(shiftingColor, 1.0);
+            
+            // Darken slightly for text readability
+            gl_FragColor.rgb *= 0.8;
         }
     `,
     side: THREE.DoubleSide
@@ -91,7 +102,20 @@ const material = new THREE.ShaderMaterial({
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
-camera.position.z = 15;
+camera.position.z = 10;
+
+// Update aspect ratio when texture loads
+texture.image.onload = () => {
+    material.uniforms.uImageResolution.value.set(texture.image.width, texture.image.height);
+    const aspect = texture.image.width / texture.image.height;
+    // Adjust scale to cover screen roughly at z=0 (camera at 10)
+    // Visible height at z=0 is 2 * tan(fov/2) * distance
+    const vFov = camera.fov * Math.PI / 180;
+    const height = 2 * Math.tan(vFov / 2) * camera.position.z;
+    const width = height * camera.aspect;
+
+    mesh.scale.set(width * 1.5, height * 1.5, 1); // Scale up to ensure cover
+};
 
 // Scroll Logic
 let scrollY = 0;
@@ -113,9 +137,8 @@ function animate() {
     material.uniforms.uTime.value = elapsedTime;
     material.uniforms.uScroll.value = currentScroll;
 
-    // Subtle rotation
-    mesh.rotation.z = currentScroll * 0.2;
-    mesh.rotation.y = currentScroll * 0.5;
+    // Subtle rotation/movement
+    // mesh.rotation.y = currentScroll * 0.1;
 
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
@@ -129,4 +152,12 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+
+    // Recalculate cover scale
+    const vFov = camera.fov * Math.PI / 180;
+    const height = 2 * Math.tan(vFov / 2) * camera.position.z;
+    const width = height * camera.aspect;
+    mesh.scale.set(width * 1.5, height * 1.5, 1);
 });
