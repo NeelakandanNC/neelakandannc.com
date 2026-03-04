@@ -222,6 +222,9 @@ function renderContact() {
   const socials = [
     { name: 'X (Twitter)', handle: '@NeelakandanNC', icon: 'X', active: true, url: 'https://x.com/NeelakandanNC' },
     { name: 'LinkedIn', handle: 'neelakandan-nc', icon: 'in', active: true, url: 'https://www.linkedin.com/in/neelakandan-nc' },
+    { name: 'GitHub', handle: 'NeelakandanNC', icon: 'GH', active: true, url: 'https://github.com/NeelakandanNC' },
+    { name: 'Kaggle', handle: 'neelakandannc', icon: 'K', active: true, url: 'https://www.kaggle.com/neelakandannc' },
+    { name: 'Hugging Face', handle: 'neelakandannc', icon: 'HF', active: true, url: 'https://huggingface.co/neelakandannc' },
     { name: 'Gmail', handle: 'neelakandannithin@gmail.com', icon: '@', active: true, url: 'mailto:neelakandannithin@gmail.com' },
     { name: 'YouTube', handle: '@NeelakandanNC', icon: '▶', active: true, url: 'https://www.youtube.com/@NeelakandanNC' },
     { name: 'Telegram', handle: '@neelakandan', icon: 'TG', active: false },
