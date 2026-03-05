@@ -3,7 +3,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
 // Global Three.js variables
 let scene, camera, renderer, particles, mesh;
-let currentPageRoute = '';// ============================================================
+let currentPageRoute = '';
+let isLightMode = localStorage.getItem('theme') === 'light';// ============================================================
 // ROUTER
 // ============================================================
 const app = document.getElementById('app');
@@ -87,6 +88,36 @@ document.addEventListener('mousemove', (e) => {
 mobileBtn.addEventListener('click', () => {
   mobileBtn.classList.toggle('open');
   mainNav.classList.toggle('open');
+});
+
+// ============================================================
+// THEME TOGGLE
+// ============================================================
+const themeToggle = document.getElementById('theme-toggle');
+const iconSun = document.querySelector('.theme-icon-sun');
+const iconMoon = document.querySelector('.theme-icon-moon');
+
+function applyTheme(isLight) {
+  if (isLight) {
+    document.body.classList.add('light-theme');
+    iconSun.style.display = 'none';
+    iconMoon.style.display = 'block';
+    if (scene) scene.fog.color.setHex(0xffffff);
+  } else {
+    document.body.classList.remove('light-theme');
+    iconSun.style.display = 'block';
+    iconMoon.style.display = 'none';
+    if (scene) scene.fog.color.setHex(0x000000);
+  }
+}
+
+// Initial Setup
+applyTheme(isLightMode);
+
+themeToggle.addEventListener('click', () => {
+  isLightMode = !isLightMode;
+  localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+  applyTheme(isLightMode);
 });
 
 // ============================================================
@@ -838,49 +869,94 @@ window.transitionScene = function (route) {
   scene.remove(mesh);
   mesh = new THREE.Group();
 
-  const material = new THREE.MeshBasicMaterial({
+  const material = new THREE.LineBasicMaterial({
     color: 0x0F52BA,
-    wireframe: true,
     transparent: true,
-    opacity: 0.25
+    opacity: 0.6
   });
 
   if (route === '/' || route === '') {
-    // Home: Icosahedron
-    const geo = new THREE.IcosahedronGeometry(8, 1);
-    const m = new THREE.Mesh(geo, material);
+    // Home: Connections / Neural Net (Points connected by lines)
+    const geo = new THREE.BufferGeometry();
+    const pts = [];
+    for (let i = 0; i < 60; i++) {
+      pts.push(new THREE.Vector3(
+        (Math.random() - 0.5) * 15,
+        (Math.random() - 0.5) * 15,
+        (Math.random() - 0.5) * 15
+      ));
+    }
+    geo.setFromPoints(pts);
+    const m = new THREE.LineSegments(geo, material);
     mesh.add(m);
   } else if (route === '/builder') {
-    // Builder: Torus Knot
-    const geo = new THREE.TorusKnotGeometry(6, 1.5, 100, 16);
-    const m = new THREE.Mesh(geo, material);
-    mesh.add(m);
+    // Builder: Interlocking Gears (using rings/cylinders)
+    const m1 = new THREE.Mesh(new THREE.TorusGeometry(4, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
+    const m2 = new THREE.Mesh(new THREE.TorusGeometry(3, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
+    m1.position.x = -3;
+    m2.position.x = 3;
+    m2.position.y = 2;
+    // Animate logic relies on looping through mesh.children
+    mesh.add(m1);
+    mesh.add(m2);
   } else if (route === '/projects') {
-    // Projects: 5 Floating Cubes
-    for (let i = 0; i < 5; i++) {
-      const geo = new THREE.BoxGeometry(3, 3, 3);
-      const m = new THREE.Mesh(geo, material);
-      m.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 10);
-      mesh.add(m);
+    // Projects: 3D Matrix / Grid of Boxes
+    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+    const boxMat = new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true, opacity: 0.4, transparent: true });
+    for (let x = -1; x <= 1; x++) {
+      for (let y = -1; y <= 1; y++) {
+        for (let z = -1; z <= 1; z++) {
+          const b = new THREE.Mesh(boxGeo, boxMat);
+          b.position.set(x * 4, y * 4, z * 4);
+          mesh.add(b);
+        }
+      }
     }
   } else if (route === '/polymath' || route.startsWith('/polymath/')) {
-    // Polymath: Octahedron
-    const geo = new THREE.OctahedronGeometry(8, 2);
-    const m = new THREE.Mesh(geo, material);
-    mesh.add(m);
+    // Polymath: Atom Model (Nucleus + Rings)
+    const nucleus = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
+    mesh.add(nucleus);
+    for (let i = 0; i < 3; i++) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(7, 0.1, 8, 64), material);
+      ring.rotation.x = Math.random() * Math.PI;
+      ring.rotation.y = Math.random() * Math.PI;
+      mesh.add(ring);
+    }
   } else if (route === '/taste') {
-    // Taste: Torus Outline
-    const geo = new THREE.TorusGeometry(8, 2, 16, 100);
-    const m = new THREE.Mesh(geo, material);
-    m.rotation.x = Math.PI / 2;
+    // Taste: Cascading Pages (Curved planes)
+    for (let i = 0; i < 5; i++) {
+      const geo = new THREE.PlaneGeometry(8, 12, 4, 4);
+      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true, side: THREE.DoubleSide }));
+      m.position.z = i * -2;
+      m.rotation.y = -Math.PI / 8 + (i * 0.1);
+      m.rotation.x = 0.2;
+      mesh.add(m);
+    }
+  } else if (route === '/life') {
+    // Life: DNA Double Helix
+    const geo = new THREE.BufferGeometry();
+    const pts = [];
+    for (let i = 0; i < 150; i++) {
+      const angle = i * 0.2;
+      const y = (i - 75) * 0.2;
+      pts.push(new THREE.Vector3(Math.cos(angle) * 3, y, Math.sin(angle) * 3));
+      pts.push(new THREE.Vector3(Math.cos(angle + Math.PI) * 3, y, Math.sin(angle + Math.PI) * 3));
+      if (i % 5 === 0) {
+        // connect strands
+        pts.push(new THREE.Vector3(Math.cos(angle) * 3, y, Math.sin(angle) * 3));
+        pts.push(new THREE.Vector3(Math.cos(angle + Math.PI) * 3, y, Math.sin(angle + Math.PI) * 3));
+      }
+    }
+    geo.setFromPoints(pts);
+    const m = new THREE.LineSegments(geo, material);
     mesh.add(m);
   } else if (route === '/contact') {
-    // Contact: Wireframe Sphere
-    const geo = new THREE.SphereGeometry(7, 16, 16);
-    const m = new THREE.Mesh(geo, material);
+    // Contact: Pulse Radar / Satellite Ring
+    const geo = new THREE.RingGeometry(2, 12, 32);
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
+    m.rotation.x = Math.PI / 2;
     mesh.add(m);
   }
-  // Life just gets fast particles, no central mesh added to the group
 
   scene.add(mesh);
 }
