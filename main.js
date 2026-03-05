@@ -1,6 +1,9 @@
 import './style.css';
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
-// ============================================================
+// Global Three.js variables
+let scene, camera, renderer, particles, mesh;
+let currentPageRoute = '';// ============================================================
 // ROUTER
 // ============================================================
 const app = document.getElementById('app');
@@ -48,10 +51,18 @@ function navigate() {
 
   // Initialize scroll animations
   requestAnimationFrame(() => initScrollAnimations());
+
+  // Transition WebGL scene
+  if (typeof transitionScene === 'function') {
+    transitionScene(route);
+  }
 }
 
 window.addEventListener('hashchange', navigate);
-window.addEventListener('load', navigate);
+window.addEventListener('load', () => {
+  initThreeJS();
+  navigate();
+});
 
 document.addEventListener('mousemove', (e) => {
   const home = document.querySelector('.home');
@@ -728,4 +739,148 @@ function renderLife() {
       </div>
     </div>
   `;
+}
+
+// ============================================================
+// THREE.JS PAGE-SPECIFIC WEBGL
+// ============================================================
+function initThreeJS() {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x000000, 0.001);
+
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 30;
+
+  renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Base Particle System (always present)
+  const particlesGeometry = new THREE.BufferGeometry();
+  const particlesCount = 700;
+  const posArray = new Float32Array(particlesCount * 3);
+  for (let i = 0; i < particlesCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 100;
+  }
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.05,
+    color: 0x0F52BA,
+    transparent: true,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending
+  });
+  particles = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particles);
+
+  mesh = new THREE.Group();
+  scene.add(mesh);
+
+  let mouseX = 0;
+  let mouseY = 0;
+  document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    // Rotate particles slowly
+    particles.rotation.y += 0.0005;
+    particles.rotation.x += 0.0002;
+
+    // Interactive camera wobble
+    camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
+    camera.position.y += (mouseY * 5 - camera.position.y) * 0.05;
+    camera.lookAt(scene.position);
+
+    // Animate the central mesh based on route
+    if (mesh) {
+      if (currentPageRoute === '/' || currentPageRoute === '') {
+        mesh.rotation.x += 0.005;
+        mesh.rotation.y += 0.005;
+      } else if (currentPageRoute === '/builder') {
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y -= 0.005;
+      } else if (currentPageRoute === '/projects') {
+        mesh.children.forEach((child, i) => {
+          child.rotation.x += 0.01;
+          child.rotation.y += 0.01;
+          child.position.y += Math.sin(Date.now() * 0.001 + i) * 0.02;
+        });
+      } else if (currentPageRoute === '/life') {
+        particles.rotation.y += 0.002;
+      } else {
+        mesh.rotation.y += 0.002;
+        mesh.rotation.x += 0.002;
+      }
+    }
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+window.transitionScene = function (route) {
+  if (!scene) return;
+  currentPageRoute = route;
+
+  scene.remove(mesh);
+  mesh = new THREE.Group();
+
+  const material = new THREE.MeshBasicMaterial({
+    color: 0x0F52BA,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.25
+  });
+
+  if (route === '/' || route === '') {
+    // Home: Icosahedron
+    const geo = new THREE.IcosahedronGeometry(8, 1);
+    const m = new THREE.Mesh(geo, material);
+    mesh.add(m);
+  } else if (route === '/builder') {
+    // Builder: Torus Knot
+    const geo = new THREE.TorusKnotGeometry(6, 1.5, 100, 16);
+    const m = new THREE.Mesh(geo, material);
+    mesh.add(m);
+  } else if (route === '/projects') {
+    // Projects: 5 Floating Cubes
+    for (let i = 0; i < 5; i++) {
+      const geo = new THREE.BoxGeometry(3, 3, 3);
+      const m = new THREE.Mesh(geo, material);
+      m.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 10);
+      mesh.add(m);
+    }
+  } else if (route === '/polymath' || route.startsWith('/polymath/')) {
+    // Polymath: Octahedron
+    const geo = new THREE.OctahedronGeometry(8, 2);
+    const m = new THREE.Mesh(geo, material);
+    mesh.add(m);
+  } else if (route === '/taste') {
+    // Taste: Torus Outline
+    const geo = new THREE.TorusGeometry(8, 2, 16, 100);
+    const m = new THREE.Mesh(geo, material);
+    m.rotation.x = Math.PI / 2;
+    mesh.add(m);
+  } else if (route === '/contact') {
+    // Contact: Wireframe Sphere
+    const geo = new THREE.SphereGeometry(7, 16, 16);
+    const m = new THREE.Mesh(geo, material);
+    mesh.add(m);
+  }
+  // Life just gets fast particles, no central mesh added to the group
+
+  scene.add(mesh);
 }
