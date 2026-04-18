@@ -1,10 +1,8 @@
 import './style.css';
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
-// Global Three.js variables
-let scene, camera, renderer, particles, mesh;
-let currentPageRoute = '';
-let isLightMode = localStorage.getItem('theme') === 'light';// ============================================================
+let isLightMode = localStorage.getItem('theme') === 'light';
+
+// ============================================================
 // ROUTER
 // ============================================================
 const app = document.getElementById('app');
@@ -27,11 +25,9 @@ function setActiveNav(route) {
 function navigate() {
   const route = getRoute();
   setActiveNav(route);
-  // Close mobile menu
   mainNav.classList.remove('open');
   mobileBtn.classList.remove('open');
 
-  // Handle polymath sub-routes like /polymath/programming
   if (route.startsWith('/polymath/')) {
     const skillSlug = route.replace('/polymath/', '');
     app.innerHTML = renderPolymathDetail(skillSlug);
@@ -47,56 +43,51 @@ function navigate() {
     }
   }
 
-  // Scroll to top
   window.scrollTo(0, 0);
 
-  // Initialize scroll animations + spotlight + page-in
   requestAnimationFrame(() => {
     initScrollAnimations();
-    initCardSpotlight();
     initPageEnter();
   });
-
-  // Transition WebGL scene
-  if (typeof transitionScene === 'function') {
-    transitionScene(route);
-  }
 }
 
 window.addEventListener('hashchange', navigate);
 window.addEventListener('load', () => {
-  try {
-    initThreeJS();
-  } catch (e) {
-    console.warn('WebGL unavailable, continuing without background scene', e);
-  }
+  initMastheadClock();
   navigate();
 });
 
-document.addEventListener('mousemove', (e) => {
-  const home = document.querySelector('.home');
-  if (home) {
-    const rect = home.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = home.offsetWidth / 2;
-    const centerY = home.offsetHeight / 2;
-    const tiltX = (y - centerY) / 40;
-    const tiltY = (centerX - x) / 40;
-
-    home.style.setProperty('--x', `${x}px`);
-    home.style.setProperty('--y', `${y}px`);
-    home.style.setProperty('--tilt-x', `${tiltX}deg`);
-    home.style.setProperty('--tilt-y', `${tiltY}deg`);
-  }
-});
-
-// Mobile menu toggle
 mobileBtn.addEventListener('click', () => {
   mobileBtn.classList.toggle('open');
   mainNav.classList.toggle('open');
 });
+
+// ============================================================
+// MASTHEAD CLOCK + DATE
+// ============================================================
+function initMastheadClock() {
+  const dateEl = document.getElementById('ms-date');
+  const clockEl = document.getElementById('ms-clock');
+  if (!dateEl || !clockEl) return;
+
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+  function tick() {
+    const now = new Date();
+    const d = String(now.getDate()).padStart(2, '0');
+    const m = months[now.getMonth()];
+    const y = now.getFullYear();
+    const dw = days[now.getDay()];
+    dateEl.textContent = `${dw} · ${d} ${m} ${y}`;
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    clockEl.textContent = `${hh}:${mm}:${ss} IST`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
 
 // ============================================================
 // THEME TOGGLE
@@ -110,16 +101,13 @@ function applyTheme(isLight) {
     document.body.classList.add('light-theme');
     iconSun.style.display = 'none';
     iconMoon.style.display = 'block';
-    if (scene) scene.fog.color.setHex(0xF6F8FC);
   } else {
     document.body.classList.remove('light-theme');
     iconSun.style.display = 'block';
     iconMoon.style.display = 'none';
-    if (scene) scene.fog.color.setHex(0x060B18);
   }
 }
 
-// Initial Setup
 applyTheme(isLightMode);
 
 themeToggle.addEventListener('click', () => {
@@ -133,7 +121,6 @@ themeToggle.addEventListener('click', () => {
 // ============================================================
 function initScrollAnimations() {
   const elements = document.querySelectorAll('.anim-fade, .anim-slide-left, .anim-slide-right, .anim-scale');
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -141,40 +128,15 @@ function initScrollAnimations() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
   elements.forEach(el => observer.observe(el));
 }
 
-// ============================================================
-// CURSOR-FOLLOWING CARD SPOTLIGHT
-// ============================================================
-function initCardSpotlight() {
-  const cards = document.querySelectorAll(
-    '.project-card, .skill-card, .venture-card, .timeline-item, .taste-big-card, .social-card, .stat-card, .resource-link'
-  );
-  cards.forEach(card => {
-    if (!card.querySelector(':scope > .glow')) {
-      const g = document.createElement('span');
-      g.className = 'glow';
-      card.prepend(g);
-    }
-    card.addEventListener('pointermove', (e) => {
-      const r = card.getBoundingClientRect();
-      card.style.setProperty('--mx', `${e.clientX - r.left}px`);
-      card.style.setProperty('--my', `${e.clientY - r.top}px`);
-    });
-  });
-}
-
-// ============================================================
-// SMOOTH PAGE-IN FADE
-// ============================================================
 function initPageEnter() {
   const main = document.getElementById('app');
   if (!main) return;
   main.style.opacity = '0';
-  main.style.transform = 'translateY(8px)';
+  main.style.transform = 'translateY(6px)';
   main.style.transition = 'opacity 0.45s cubic-bezier(0.16,1,0.3,1), transform 0.45s cubic-bezier(0.16,1,0.3,1)';
   requestAnimationFrame(() => {
     main.style.opacity = '1';
@@ -183,168 +145,160 @@ function initPageEnter() {
 }
 
 // ============================================================
-// TYPING ANIMATION
-// ============================================================
-function initTypingAnimation() {
-  const el = document.getElementById('typing-text');
-  if (!el) return;
-
-  const texts = ['Builder', 'Engineer', 'Polymath', 'Creator'];
-  let textIdx = 0;
-  let charIdx = 0;
-  let deleting = false;
-
-  function type() {
-    const current = texts[textIdx];
-    if (!deleting) {
-      el.textContent = current.substring(0, charIdx + 1);
-      charIdx++;
-      if (charIdx === current.length) {
-        deleting = true;
-        setTimeout(type, 1800);
-        return;
-      }
-      setTimeout(type, 100);
-    } else {
-      el.textContent = current.substring(0, charIdx - 1);
-      charIdx--;
-      if (charIdx === 0) {
-        deleting = false;
-        textIdx = (textIdx + 1) % texts.length;
-        setTimeout(type, 400);
-        return;
-      }
-      setTimeout(type, 60);
-    }
-  }
-  setTimeout(type, 800);
-}
-
-// ============================================================
 // PAGE RENDERERS
 // ============================================================
 
 // --- HOME ---
 function renderHome() {
-  requestAnimationFrame(() => initTypingAnimation());
   return `
     <section class="home">
-      <div class="home__content">
-        <div class="anim-fade" style="--i:0">
-          <p class="home__greeting">// the vision</p>
+      <div class="home-hero">
+        <div class="home-hero__meta anim-fade" style="--i:0">
+          <span class="kbd kbd--accent">№ 01 — Vision</span>
+          <span class="kbd">Builder · Engineer · Polymath</span>
+          <span class="kbd">India</span>
         </div>
-        <h1 class="home__name anim-fade" style="--i:1">
-          <span>Neelakandan NC</span><br>
-          <span class="home__name-sub">Building at the intersection of STEM</span>
-        </h1>
-        <p class="home__bio anim-fade" style="--i:2">
-          I am a builder. Currently, finding synergy between core Electronics
-          and the world of Machine Learning, AI Agents, and Finance and Economics.
-          I don't just study systems; I build them. Whether it's orchestrating multi-agent
-          CLI tools or engineering low-latency AI dictation platforms, my goal is to
-          create high-leverage technology that solves complex problems.
-        </p>
-        <div class="home__tags anim-fade stagger" style="--i:3">
-          <span class="home__tag" style="--i:0">AI Agents</span>
-          <span class="home__tag" style="--i:1">Finance and Economics</span>
-          <span class="home__tag" style="--i:2">STEM</span>
-          <span class="home__tag" style="--i:3">Tech</span>
-        </div>
-      </div>
-      <div class="home__scroll-hint">Scroll to explore</div>
-    </section>
 
-    <section class="home__about">
-      <div class="page-label anim-fade">Thesis</div>
-      <h2 class="page-title anim-fade">My Philosophy</h2>
-      <div class="about-grid">
-        <div class="about-text">
-          <p class="anim-fade">
-            I believe the <strong>next decade belongs to those who can bridge
-            the gap between capital and code.</strong> My focus is split between
-            building advanced technology and understanding markets through the
-            lens of data, algorithms, and venture-scale thinking.
-          </p>
-          <p class="anim-fade">
-            <strong>Advanced Tech</strong> — Developing AI Agents and LLM-integrated
-            workflows that actually work. From multi-agent orchestration to
-            production-grade ML pipelines.
-          </p>
-          <p class="anim-fade">
-            <strong>Finance</strong> — Analyzing markets through the lens of data,
-            algorithms, and venture-scale thinking. Building at the intersection
-            of quant and code.
-          </p>
-          <p class="anim-fade">
-            <strong>Creativity</strong> — Documenting the process of building in
-            public to inspire a new standard of technical craftsmanship.
-          </p>
+        <h1 class="home-hero__display anim-fade" style="--i:1">
+          <span class="line">Neelakandan</span>
+        </h1>
+
+        <div class="home-hero__caption">
+          <div class="anim-fade" style="--i:2">
+            <div class="home-hero__caption-mono">— Building at the intersection of STEM</div>
+            <p class="home-hero__bio" style="margin-top:1.25rem;">
+              I'm a builder. Finding synergy between core <em>electronics</em>
+              and the world of machine learning, frontier tech, and finance.
+              I don't just study systems — I <em>build</em> them.
+            </p>
+          </div>
+          <div class="home-hero__aside anim-fade" style="--i:3">
+            <div class="home-hero__aside-item">
+              <span class="home-hero__aside-label">Focus</span>
+              <span class="home-hero__aside-value"><em>Frontier Tech</em></span>
+            </div>
+            <div class="home-hero__aside-item">
+              <span class="home-hero__aside-label">Status</span>
+              <span class="home-hero__aside-value"><em>Building</em></span>
+            </div>
+            <div class="home-hero__aside-item">
+              <span class="home-hero__aside-label">Open to</span>
+              <span class="home-hero__aside-value">Collab · Capital</span>
+            </div>
+          </div>
         </div>
-        <div class="about-stats stagger">
-          <div class="stat-card anim-scale" style="--i:0">
-            <div class="stat-card__number">8+</div>
-            <div class="stat-card__label">Ventures Built</div>
-          </div>
-          <div class="stat-card anim-scale" style="--i:1">
-            <div class="stat-card__number">∞</div>
-            <div class="stat-card__label">Curiosity Level</div>
-          </div>
-          <div class="stat-card anim-scale" style="--i:2">
-            <div class="stat-card__number">24/7</div>
-            <div class="stat-card__label">Building Mode</div>
-          </div>
-          <div class="stat-card anim-scale" style="--i:3">
-            <div class="stat-card__number">1</div>
-            <div class="stat-card__label">Mission</div>
-          </div>
+
+        <div class="home-tags anim-fade stagger" style="--i:4">
+          <span class="home-tag">Frontier Tech</span>
+          <span class="home-tag">Finance & Economics</span>
+          <span class="home-tag">STEM</span>
+          <span class="home-tag">Tech</span>
+          <span class="home-tag">Venture</span>
         </div>
       </div>
+
+      <section class="manifesto">
+        <div class="section-head">
+          <span class="section-num">№ 02</span>
+          <span class="section-label">Thesis</span>
+          <span class="section-right">The Philosophy</span>
+        </div>
+
+        <div class="manifesto-heading anim-fade">
+          <h2 class="display display--lg">My <span class="italic">Philosophy</span></h2>
+          <span class="kbd">Long-form</span>
+        </div>
+
+        <div class="manifesto-grid">
+          <p class="manifesto-drop anim-fade" style="--i:0">
+            The next decade belongs to those who can <em>bridge the gap</em> between capital and code.
+          </p>
+
+          <div class="manifesto-body-col anim-fade" style="--i:1">
+            <p><strong>Advanced Tech</strong>Developing AI agents and LLM-integrated workflows that actually work — from multi-agent orchestration to production-grade ML pipelines.</p>
+            <p><strong>Finance</strong>Analyzing markets through the lens of data, algorithms, and venture-scale thinking. Building at the intersection of quant and code.</p>
+            <p><strong>Creativity</strong>Documenting the process of building in public, to inspire a new standard of technical craftsmanship.</p>
+          </div>
+
+          <div class="manifesto-stats anim-fade stagger" style="--i:2">
+            <div class="stat-row">
+              <span class="stat-num"><span class="sym">∞</span></span>
+              <span class="stat-label">Curiosity<br>Level</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-num">24<span class="sym">/</span>7</span>
+              <span class="stat-label">Building<br>Mode</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
   `;
 }
 
 // --- CONTACT ---
 function renderContact() {
-  const socials = [
-    { name: 'X (Twitter)', handle: '@NeelakandanNC', icon: 'X', active: true, url: 'https://x.com/NeelakandanNC' },
-    { name: 'LinkedIn', handle: 'neelakandan-nc', icon: 'in', active: true, url: 'https://www.linkedin.com/in/neelakandan-nc' },
-    { name: 'GitHub', handle: 'NeelakandanNC', icon: 'GH', active: true, url: 'https://github.com/NeelakandanNC' },
-    { name: 'Kaggle', handle: 'neelakandannc', icon: 'K', active: true, url: 'https://www.kaggle.com/neelakandannc' },
-    { name: 'Hugging Face', handle: 'neelakandannc', icon: 'HF', active: true, url: 'https://huggingface.co/neelakandannc' },
-    { name: 'Gmail', handle: 'neelakandannithin@gmail.com', icon: '@', active: true, url: 'mailto:neelakandannithin@gmail.com' },
-    { name: 'YouTube', handle: '@NeelakandanNC', icon: '▶', active: true, url: 'https://www.youtube.com/@NeelakandanNC' },
-    { name: 'Telegram', handle: '@neelakandan', icon: 'TG', active: false },
-    { name: 'Reddit', handle: 'coming soon', icon: 'R', active: false },
-    { name: 'WhatsApp', handle: 'coming soon', icon: 'WA', active: false },
-    { name: 'Substack', handle: 'coming soon', icon: 'S', active: false },
-    { name: 'Quora', handle: 'coming soon', icon: 'Q', active: false },
-    { name: 'Instagram', handle: 'coming soon', icon: 'IG', active: false },
-    { name: 'Threads', handle: 'coming soon', icon: 'TH', active: false },
-    { name: 'Facebook', handle: 'coming soon', icon: 'FB', active: false },
+  const channels = [
+    {
+      name: 'X',
+      label: 'Twitter · X',
+      handle: '@NeelakandanNC',
+      url: 'https://x.com/NeelakandanNC',
+      note: 'Thoughts in public. Fastest replies here.'
+    },
+    {
+      name: 'LinkedIn',
+      label: 'Professional',
+      handle: 'neelakandan-nc',
+      url: 'https://www.linkedin.com/in/neelakandan-nc',
+      note: 'For collaboration, capital, and formal outreach.'
+    },
+    {
+      name: 'Gmail',
+      label: 'Direct Mail',
+      handle: 'neelakandannithin@gmail.com',
+      url: 'mailto:neelakandannithin@gmail.com',
+      note: 'Long-form inquiries, proposals, and decks.'
+    },
+    {
+      name: 'YouTube',
+      label: 'Video · Build Logs',
+      handle: '@NeelakandanNC',
+      url: 'https://www.youtube.com/@NeelakandanNC',
+      note: 'Building in public, one episode at a time.'
+    },
   ];
 
-  const cards = socials.map((s, i) => {
-    const cls = s.active ? 'social-card--active' : 'social-card--inactive';
-    const status = s.active ? 'Active' : 'Inactive';
-    const wrapper = s.active ? `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="social-card ${cls} anim-scale" style="--i:${i}">` : `<div class="social-card ${cls} anim-scale" style="--i:${i}">`;
-    const close = s.active ? '</a>' : '</div>';
-
-    return `${wrapper}
-      <div class="social-card__icon">${s.icon}</div>
-      <div class="social-card__info">
-        <div class="social-card__name">${s.name}</div>
-        <div class="social-card__handle">${s.handle}</div>
-      </div>
-      <div class="social-card__status">${status}</div>
-    ${close}`;
+  const cards = channels.map((c, i) => {
+    const num = String(i + 1).padStart(2, '0');
+    return `
+      <a href="${c.url}" target="_blank" rel="noopener noreferrer" class="contact-card anim-fade" style="--i:${i}">
+        <div class="contact-card__top">
+          <span class="contact-card__num">№ ${num}</span>
+          <span class="contact-card__label">${c.label}</span>
+        </div>
+        <h2 class="contact-card__name">${c.name}</h2>
+        <p class="contact-card__note">${c.note}</p>
+        <div class="contact-card__foot">
+          <span class="contact-card__handle">${c.handle}</span>
+          <span class="contact-card__arrow">↗</span>
+        </div>
+      </a>
+    `;
   }).join('');
 
   return `
     <div class="page">
-      <div class="page-label anim-fade">Connect</div>
-      <h1 class="page-title anim-fade">Get in Touch</h1>
-      <p class="page-subtitle anim-fade">
-        Reach out on any active platform. More channels coming soon.
+      <div class="section-head">
+        <span class="section-num">№ 06</span>
+        <span class="section-label">Connect</span>
+        <span class="section-right">${channels.length} Channels</span>
+      </div>
+      <h1 class="display display--xl anim-fade" style="margin-bottom:1.5rem;">
+        Get in <span class="italic">touch</span>.
+      </h1>
+      <p class="lede anim-fade" style="margin-bottom:3.5rem;">
+        Four channels. No noise. Pick whichever fits the <em>conversation</em>.
       </p>
       <div class="contact-grid stagger">
         ${cards}
@@ -357,103 +311,177 @@ function renderContact() {
 function renderProjects() {
   const projects = [
     {
-      category: 'Financial Tech & Quantitative Analysis',
-      title: 'Financial Health Index Prediction for MSMEs',
-      goal: 'Developed a machine learning pipeline to predict the business resilience and creditworthiness of MSMEs across four African nations.',
-      innovation: 'Implemented Regime-Based Modeling to handle "structural noise," where entire countries skipped specific survey questions.',
-      highlights: 'Utilized a triple-model ensemble (CatBoost, LightGBM, XGBoost) and engineered domain-specific features like the "Skin in the Game" ratio and "Pure Efficiency" metrics.'
+      category: 'AI · Agentic Systems · Hero',
+      title: 'ZeraPortfolio Advisor',
+      goal: 'Post-market portfolio intelligence system. A 4-agent Gemini swarm runs after the Indian market close, fetches live Zerodha holdings, scrapes Screener.in fundamentals, pulls geopolitical signals, and produces a daily Bloomberg-style dashboard + PDF delivered to WhatsApp.',
+      innovation: 'Multi-agent orchestration via Google ADK with Gemini 2.0 Flash and 2.5 Pro, APScheduler-driven post-close triggers, WeasyPrint PDF generation, and Twilio delivery.',
+      stack: 'Google ADK · Gemini 2.0 Flash / 2.5 Pro · FastAPI · PostgreSQL (Neon) · React + Vite + Tailwind · Docker · APScheduler · Twilio · WeasyPrint'
     },
     {
-      category: 'Financial Tech & Quantitative Analysis',
-      title: 'Gold & Silver Market Analysis Dashboard',
-      goal: 'Built an interactive web-based tool for analyzing the 25+ year historical relationship between Gold and Silver markets.',
-      features: 'Includes a real-time data pipeline via Yahoo Finance, synchronized Plotly dashboards, and market statistics cards measuring volatility and returns.',
-      stack: 'Streamlit, Plotly, Pandas, and yfinance.'
+      category: 'AI · Agentic Systems · National Finalist NSCIF 2026',
+      title: 'Ydhya — Clinical Decision Support Agent',
+      goal: 'AI triage agent for junior doctors in resource-constrained rural India. Analyzes vitals, symptoms, and co-morbidities in real time; flags complications with clinical rationale; recommends workups; routes to specialists on escalation.',
+      architecture: 'Google ADK multi-agent orchestration layered over an XGBoost classifier trained on a real 20,000-row clinical dataset.',
+      results: 'Validated with practicing doctors post-hackathon. National Finalist at NSCIF 2026.'
     },
     {
-      category: 'Financial Tech & Quantitative Analysis',
-      title: 'Portfolio Optimizer with Moving Average Strategy',
-      goal: 'Combines Modern Portfolio Theory with tactical timing strategies to find optimal asset weights and test if active timing (MA crossovers) beats buy-and-hold.',
-      innovation: 'Tests thousands of moving average combinations to determine if active management adds value by avoiding drawdowns during market crashes.',
-      stack: 'Python (Scipy for optimization), Pandas, Matplotlib.'
+      category: 'AI · RAG · Production',
+      title: 'Compliance RAG System',
+      goal: 'Production-grade RAG application for compliance documents. Users upload PDFs; the system chunks, embeds, and retrieves clause-level citations with GPT-4o explanations — responses always include the verbatim source clause and page number.',
+      innovation: '800-char chunks with 100-char overlap, OpenAI text-embedding-3-small, Pinecone Serverless for vector storage, zero-hallucination guarantee via enforced citation contracts.',
+      stack: 'FastAPI · Streamlit · Pinecone · GPT-4o · PyMuPDF · Docker'
     },
     {
-      category: 'Financial Tech & Quantitative Analysis',
-      title: 'Linear Regression Beta Finder',
-      goal: 'A Python tool that calculates the Beta (β) and R² of stocks relative to a market index (e.g., S&P 500) using monthly log returns.',
-      features: 'Automated data fetching, outlier handling, and visualization of Beta values across different time horizons (1y, 3y, 5y, 10y).'
+      category: 'AI · Fine-Tuning',
+      title: 'Gemma 2B Medical QLoRA Fine-Tuning',
+      goal: 'Fine-tuned Google Gemma 2B on the LiveClin medical dataset using 4-bit NF4 quantization and PEFT + LoRA targeting all attention and MLP projections.',
+      highlights: 'Rank 8, alpha 32, paged AdamW optimizer. Trained on a single T4 GPU via Google Colab.',
+      stack: 'HuggingFace Transformers · PEFT · TRL · BitsAndBytes · SFTTrainer'
     },
     {
-      category: 'Advanced Tech & Machine Learning',
-      title: 'UIDAI Data Hackathon 2026: Aadhaar Lifecycle Modeling',
-      goal: 'Reframed Aadhaar as a dynamic lifecycle system to identify patterns of delayed compliance and system stress.',
-      finding: 'Discovered that adult demographic updates—not youth enrollments—are the primary drivers of peak-load system stress, particularly in November.',
-      output: 'Developed a diagnostic Jupyter Notebook that segments states into typologies to offer targeted policy recommendations.'
+      category: 'AI · Full-Stack',
+      title: 'Multimodal Chatbot with Memory',
+      goal: 'Full-stack chatbot supporting text and image input with persistent conversation memory, multi-turn history, and auto-titled threads.',
+      architecture: 'LangChain orchestrates chat history; conversations stored in SQLite; OpenAI handles generation and title synthesis.',
+      stack: 'FastAPI · React + TypeScript + Vite · LangChain · OpenAI SDK · SQLAlchemy · SQLite'
     },
     {
-      category: 'Advanced Tech & Machine Learning',
-      title: 'StreamMax OTT Engagement Intelligence',
-      goal: 'Predicted user "fatigue" (churn risk) weeks before cancellation using behavioral leading indicators.',
-      metrics: 'Identified Recency and Momentum Drop (variance between 7-day and 30-day engagement) as the strongest predictors of churn.',
-      results: 'Achieved a stable Mean AUC-ROC of 0.786 using a Random Forest Classifier, enabling automated risk-based interventions.'
+      category: 'MCP · Developer Tools',
+      title: 'WebMCP Amazon Demo',
+      goal: 'E-commerce demo site (4-page shopping flow) demonstrating WebMCP integration — every user action is simultaneously registered as a W3C navigator.modelContext tool, making the full flow agent-drivable.',
+      features: 'Tested end-to-end with the WebMCP Chrome extension and Gemini CLI.',
+      stack: 'React 19 · Vite · Tailwind · Zustand · React Router v7'
     },
     {
-      category: 'Advanced Tech & Machine Learning',
+      category: 'MCP · Developer Tools',
+      title: 'MCP Chat — File Search MCP Server',
+      goal: 'CLI application for interactive chat with Claude via the Anthropic API, with document retrieval (@doc_id syntax), command-based prompts (/command prefix with Tab autocomplete), and extensible MCP tool integrations.',
+      stack: 'Python · Anthropic SDK · MCP 1.8.0 · prompt-toolkit'
+    },
+    {
+      category: 'Developer Tools',
       title: 'REPO FOR THAT',
-      goal: 'A curated, searchable directory for open-source repositories featuring a distinctive retro/pixel art aesthetic.',
-      architecture: 'Built with Next.js 16, PostgreSQL (Neon), and Drizzle ORM.',
-      ux: 'Implemented Optimistic UI Updates for bookmarking and JWT-based authentication via secure cookies.'
+      goal: 'A curated, searchable directory for open-source repositories with a distinctive retro/pixel art aesthetic.',
+      architecture: 'Next.js 16 · PostgreSQL (Neon) · Drizzle ORM.',
+      ux: 'Optimistic UI updates for bookmarking; JWT-based authentication via secure cookies.'
     },
     {
-      category: 'Venture Capital & Investment Analysis',
-      title: 'Accelsius Investment Memo',
-      focus: 'Provided a strategic investment thesis for Accelsius, a company developing two-phase, direct-to-chip liquid cooling for AI data centers.',
-      thesis: 'Highlighted how the technology addresses the structural limits of air cooling as AI workloads push power densities beyond 30–50kW per rack.',
-      strategicFit: 'Analyzed the alignment with HP Tech Ventures, emphasizing the potential for co-engineered architectures for next-gen AI systems.'
+      category: 'Data · ML · Quantitative',
+      title: 'StreamMax OTT Churn Prediction',
+      goal: 'Predicts user fatigue before cancellation on a 10,000-user dataset using behavioral leading indicators.',
+      metrics: 'Random Forest (600 estimators, max depth 12) outperformed logistic regression baseline by 6.2 AUC points.',
+      results: 'Mean AUC-ROC of 0.786 via 5-fold stratified cross-validation. Outputs fatigue probability scores segmenting users into High/Medium/Low risk tranches for automated interventions.'
+    },
+    {
+      category: 'Data · ML · Quantitative',
+      title: 'MSME Financial Health Index — Zindi Competition',
+      goal: 'ML pipeline predicting financial health of MSMEs across four African countries (Eswatini, Lesotho, Malawi, Zimbabwe).',
+      innovation: 'Regime-based modeling per country, James-Stein shrinkage encoding, quantile transformations, adversarial validation (AUC 0.4928 — confirming train/test parity), and a multi-seed CatBoost/LightGBM/XGBoost ensemble with Repeated Stratified K-Fold.',
+      stack: 'CatBoost · LightGBM · XGBoost · Pandas · scikit-learn'
+    },
+    {
+      category: 'Data · ML · Quantitative',
+      title: 'UIDAI Aadhaar Lifecycle Analysis — UIDAI Data Hackathon 2026',
+      goal: 'Reframed Aadhaar as a lifecycle-driven system rather than a static enrollment database.',
+      finding: 'Adult demographic updates — not youth enrollments — drive system stress; update surges are nationally synchronized; November is the peak stress month due to predictable backlog release.',
+      output: 'Behavioral model of the system\'s stress dynamics; diagnostic notebook segmenting states into typologies for policy recommendations.'
+    },
+    {
+      category: 'Data · ML · Quantitative',
+      title: 'Gold & Silver Market Analysis Dashboard',
+      goal: 'Interactive dashboard with 25+ years of daily futures data (~1,300 weekly points) analyzing the historical Gold/Silver relationship.',
+      features: '4-panel synchronized chart grid (Gold/Silver weekly returns, ratio, price history) with linked x-axes, a timeline slider, and live market stats cards.',
+      stack: 'Streamlit · Plotly · Pandas · yfinance'
+    },
+    {
+      category: 'Data · ML · Quantitative',
+      title: 'Statistical Risk-Reward Analysis Tool',
+      goal: 'Python tool computing annualized returns, volatility, Sharpe-like risk-reward ratios, and visualizations for user-selected stock portfolios using Yahoo Finance data.',
+      stack: 'Python · Pandas · NumPy · Matplotlib · yfinance'
+    },
+    {
+      category: 'Data · ML · Quantitative',
+      title: 'Modern Portfolio Theory Portfolio Analyzer',
+      goal: 'Automated portfolio construction tool building market-cap-weighted portfolios and analyzing cumulative returns, maximum drawdowns, volatility, and beta against benchmarks.',
+      stack: 'Python · Scipy · Pandas · Matplotlib'
+    },
+    {
+      category: 'Data · ML · Quantitative',
+      title: 'Portfolio Optimizer with Moving Average Strategy',
+      goal: 'Combines Modern Portfolio Theory with tactical timing strategies to find optimal asset weights and test if MA crossovers beat buy-and-hold.',
+      innovation: 'Tests thousands of MA combinations to determine if active management adds value by avoiding drawdowns during crashes.',
+      stack: 'Python · Scipy · Pandas · Matplotlib'
+    },
+    {
+      category: 'Data · ML · Quantitative',
+      title: 'Linear Regression Beta Finder',
+      goal: 'A Python tool that calculates Beta (β) and R² of stocks relative to a market index (e.g., S&P 500) using monthly log returns.',
+      features: 'Automated data fetching, outlier handling, and visualization of Beta across 1y, 3y, 5y, 10y horizons.'
+    },
+    {
+      category: 'Venture Capital · Investment',
+      title: 'Accelsius — Investment Memo',
+      focus: 'Strategic investment thesis for Accelsius, developing two-phase, direct-to-chip liquid cooling for AI data centers.',
+      thesis: 'Addresses the structural limits of air cooling as AI workloads push densities beyond 30–50 kW per rack.',
+      strategicFit: 'Alignment with HP Tech Ventures, emphasizing co-engineered architectures for next-gen AI systems.'
     }
   ];
 
-  const cards = projects.map((p, i) => {
-    let detailsHtml = '';
-    if (p.goal) detailsHtml += `<div class="project-card__detail"><strong>Goal:</strong> ${p.goal}</div>`;
-    if (p.focus) detailsHtml += `<div class="project-card__detail"><strong>Focus:</strong> ${p.focus}</div>`;
+  const rows = projects.map((p, i) => {
+    const num = String(i + 1).padStart(2, '0');
+    const details = [];
+    const push = (label, text) => { if (text) details.push({ label, text }); };
+    push('Goal', p.goal);
+    push('Focus', p.focus);
+    push('Key Innovation', p.innovation);
+    push('Key Finding', p.finding);
+    push('Thesis', p.thesis);
+    push('Highlights', p.highlights);
+    push('Features', p.features);
+    push('Architecture', p.architecture);
+    push('Key Metrics', p.metrics);
+    push('Results', p.results);
+    push('Output', p.output);
+    push('UX', p.ux);
+    push('Strategic Fit', p.strategicFit);
+    push('Stack', p.stack);
 
-    if (p.innovation) detailsHtml += `<div class="project-card__detail"><strong>Key Innovation:</strong> ${p.innovation}</div>`;
-    if (p.finding) detailsHtml += `<div class="project-card__detail"><strong>Key Finding:</strong> ${p.finding}</div>`;
-    if (p.thesis) detailsHtml += `<div class="project-card__detail"><strong>Thesis:</strong> ${p.thesis}</div>`;
-
-    if (p.highlights) detailsHtml += `<div class="project-card__detail"><strong>Highlights:</strong> ${p.highlights}</div>`;
-    if (p.features) detailsHtml += `<div class="project-card__detail"><strong>Features:</strong> ${p.features}</div>`;
-    if (p.architecture) detailsHtml += `<div class="project-card__detail"><strong>Architecture:</strong> ${p.architecture}</div>`;
-
-    if (p.metrics) detailsHtml += `<div class="project-card__detail"><strong>Key Metrics:</strong> ${p.metrics}</div>`;
-    if (p.results) detailsHtml += `<div class="project-card__detail"><strong>Results:</strong> ${p.results}</div>`;
-    if (p.output) detailsHtml += `<div class="project-card__detail"><strong>Output:</strong> ${p.output}</div>`;
-    if (p.ux) detailsHtml += `<div class="project-card__detail"><strong>UX Features:</strong> ${p.ux}</div>`;
-    if (p.strategicFit) detailsHtml += `<div class="project-card__detail"><strong>Strategic Fit:</strong> ${p.strategicFit}</div>`;
-
-    if (p.stack) detailsHtml += `<div class="project-card__detail"><strong>Stack:</strong> ${p.stack}</div>`;
+    const detailsHtml = details.map(d => `
+      <div class="dossier-detail">
+        <span class="dossier-detail__label">${d.label}</span>
+        <span class="dossier-detail__text">${d.text}</span>
+      </div>
+    `).join('');
 
     return `
-      <div class="project-card anim-fade" style="--i:${i}">
-        <div class="project-card__category">${p.category}</div>
-        <h3 class="project-card__title">${p.title}</h3>
-        <div class="project-card__content">
-          ${detailsHtml}
+      <article class="dossier-row anim-fade" style="--i:${i}">
+        <div class="dossier-num">
+          <span><strong>№ ${num}</strong></span>
+          <span class="dossier-category">${p.category}</span>
         </div>
-      </div>
+        <div class="dossier-body">
+          <h3 class="dossier-title">${p.title}</h3>
+          <div class="dossier-details">${detailsHtml}</div>
+        </div>
+      </article>
     `;
   }).join('');
 
   return `
     <div class="page page--wide">
-      <div class="page-label anim-fade">Building</div>
-      <h1 class="page-title anim-fade">Projects</h1>
-      <p class="page-subtitle anim-fade">
-        Advanced technology, quantitative analysis, and venture strategy.
+      <div class="section-head">
+        <span class="section-num">№ 05</span>
+        <span class="section-label">Building</span>
+        <span class="section-right">${projects.length} Entries · 2024 — 2026</span>
+      </div>
+      <h1 class="display display--xl anim-fade" style="margin-bottom:1.5rem;">
+        <span class="italic">Projects</span>.
+      </h1>
+      <p class="lede anim-fade" style="margin-bottom:3.5rem;">
+        Advanced technology, quantitative analysis, and venture strategy — a running dossier of builds, experiments, and research.
       </p>
-      <div class="projects-grid stagger">
-        ${cards}
+      <div class="dossier stagger">
+        ${rows}
       </div>
     </div>
   `;
@@ -470,7 +498,7 @@ function renderBuilder() {
     },
     {
       name: 'ModernClother',
-      desc: 'First e-commerce venture — tried to sell apparel online. The pricing was too high and I had no understanding of sales and marketing at the time.',
+      desc: 'First e-commerce venture — tried to sell apparel online. Pricing was too high and I had no understanding of sales and marketing at the time.',
       status: 'learned', statusLabel: 'Lesson Learned',
       lesson: 'Product-market fit matters more than the product itself. Pricing and distribution are everything.'
     },
@@ -496,7 +524,7 @@ function renderBuilder() {
     {
       name: 'Arthhive',
       desc: 'Worked on this for 9 months. Due to lack of time and competing priorities, we decided to pause the project.',
-      status: 'paused', statusLabel: 'Stopped — 9 months',
+      status: 'paused', statusLabel: 'Stopped — 9 mo',
       lesson: 'Time is the scarcest resource. Choose your battles wisely.'
     },
     {
@@ -508,46 +536,65 @@ function renderBuilder() {
     {
       name: 'repoforthat.dev',
       link: 'https://repoforthat.dev',
-      desc: 'Active project — building a platform to discover the right repo for any problem. Combining developer tooling with curation.',
+      desc: 'A platform to discover the right repo for any problem. Shipped the curation engine and developer tooling surface, then sunset the venture to refocus.',
+      status: 'closed', statusLabel: 'Closed',
+      lesson: 'Build what you wish existed — and know when to close the chapter.'
+    },
+    {
+      name: 'Agentronics',
+      desc: 'Currently active — building at the intersection of autonomous AI agents and electronics. Agentic systems that reason about hardware, sensors, and the physical world.',
       status: 'active', statusLabel: 'Active',
-      lesson: 'Build what you wish existed.'
+      lesson: 'The next frontier is agents that touch atoms, not just bits.'
     },
   ];
 
-  const cards = ventures.map((v, i) => {
-    const nameHtml = v.link ? `<a href="${v.link}" target="_blank" rel="noopener noreferrer">${v.name}</a>` : v.name;
+  const rows = ventures.map((v, i) => {
+    const num = String(i + 1).padStart(2, '0');
+    const nameHtml = v.link
+      ? `<a href="${v.link}" target="_blank" rel="noopener noreferrer">${v.name}</a>`
+      : v.name;
     return `
-      <div class="venture-card anim-fade" style="--i:${i}">
-        <div class="venture-card__status venture-card__status--${v.status}">${v.statusLabel}</div>
-        <h3 class="venture-card__name">${nameHtml}</h3>
-        <p class="venture-card__desc">${v.desc}</p>
-        <div class="venture-card__lesson">↳ ${v.lesson}</div>
-      </div>
+      <article class="venture-row anim-fade" style="--i:${i}">
+        <span class="venture-idx">№ ${num}</span>
+        <div class="venture-head">
+          <span class="venture-status venture-status--${v.status}">${v.statusLabel}</span>
+          <h3 class="venture-name">${nameHtml}</h3>
+        </div>
+        <div class="venture-detail">
+          <p class="venture-desc">${v.desc}</p>
+          <p class="venture-lesson">${v.lesson}</p>
+        </div>
+      </article>
     `;
   }).join('');
 
   return `
     <div class="page">
-      <div class="builder-hero anim-fade">
-        <h1 class="builder-hero__title">Born <span>Builder</span></h1>
-        <p class="builder-hero__sub">
-          Every venture is a lesson. Every failure is data. Here's the journey.
-        </p>
+      <div class="section-head">
+        <span class="section-num">№ 04</span>
+        <span class="section-label">Builder Log</span>
+        <span class="section-right">9 Ventures · 1 Active</span>
       </div>
-      <div class="builder-timeline stagger">
-        ${cards}
+      <h1 class="display display--xl anim-fade" style="margin-bottom:1rem;">
+        Born <span class="italic">builder</span>.
+      </h1>
+      <p class="lede anim-fade" style="margin-bottom:3.5rem;">
+        Every venture is a <em>lesson</em>. Every failure is data. What follows is a working log — the journey, unredacted.
+      </p>
+      <div class="venture-log stagger">
+        ${rows}
       </div>
     </div>
   `;
 }
 
 // ============================================================
-// POLYMATH DATA (shared between list and detail views)
+// POLYMATH DATA
 // ============================================================
 const polymathSkills = [
   {
     slug: 'programming',
-    icon: '{ }',
+    icon: '{}',
     title: 'Programming & Development',
     desc: 'Full-stack development, web technologies, and software engineering fundamentals.',
     resources: ['YouTube', 'FreeCodeCamp', 'MDN Docs', 'LeetCode'],
@@ -579,7 +626,7 @@ const polymathSkills = [
     icon: '△',
     title: 'Business & Startups',
     desc: 'Entrepreneurship, sales, marketing, and building ventures from zero.',
-    resources: ['YC Library', 'Indie Hackers', 'First-hand experience'],
+    resources: ['YC Library', 'Indie Hackers', 'First-hand'],
     notes: 'Learned business through doing — from ModernClother to MediPro to Doubt Room. Failure is the best teacher. Key insight: distribution > product in early stages. Currently focused on building in public and lean startup methodology.',
     links: [
       { name: 'Y Combinator Library', url: 'https://www.ycombinator.com/library' },
@@ -640,79 +687,98 @@ const polymathSkills = [
   },
 ];
 
-// --- POLYMATH (main page — clickable skill cards) ---
+// --- POLYMATH (index) ---
 function renderPolymath() {
-  const cards = polymathSkills.map((s, i) => {
-    const resources = s.resources.map(r => `<span class="skill-card__resource">${r}</span>`).join('');
+  const rows = polymathSkills.map((s, i) => {
+    const num = String(i + 1).padStart(2, '0');
+    const resources = s.resources.map(r => `<span class="polymath-entry__resource">${r}</span>`).join('');
+    // Title: split to allow italicizing the second word for character
+    const parts = s.title.split(' & ');
+    const titleHtml = parts.length === 2
+      ? `${parts[0]} <em>&amp; ${parts[1]}</em>`
+      : s.title;
+
     return `
-      <a href="#/polymath/${s.slug}" class="skill-card skill-card--clickable anim-scale" style="--i:${i}">
-        <div class="skill-card__icon">${s.icon}</div>
-        <h3 class="skill-card__title">${s.title}</h3>
-        <p class="skill-card__desc">${s.desc}</p>
-        <div class="skill-card__resources">${resources}</div>
-        <div class="skill-card__arrow">→</div>
+      <a href="#/polymath/${s.slug}" class="polymath-entry anim-fade" style="--i:${i}">
+        <span class="polymath-entry__num">№ ${num}</span>
+        <div class="polymath-entry__content">
+          <h3 class="polymath-entry__title">${titleHtml}</h3>
+          <p class="polymath-entry__desc">${s.desc}</p>
+          <div class="polymath-entry__resources">${resources}</div>
+        </div>
+        <span class="polymath-entry__arrow">→</span>
       </a>
     `;
   }).join('');
 
   return `
     <div class="page">
-      <div class="page-label anim-fade">Knowledge</div>
-      <h1 class="page-title anim-fade">Polymath</h1>
-      <p class="page-subtitle anim-fade">
-        Every skill is a weapon. Click any domain to explore notes, resources, and the learning journey.
+      <div class="section-head">
+        <span class="section-num">№ 03</span>
+        <span class="section-label">Knowledge</span>
+        <span class="section-right">${polymathSkills.length} Domains</span>
+      </div>
+      <h1 class="display display--xl anim-fade" style="margin-bottom:1.5rem;">
+        The <span class="italic">Polymath</span>.
+      </h1>
+      <p class="lede anim-fade" style="margin-bottom:3.5rem;">
+        Every skill is a weapon. An index of <em>domains</em> — open any entry for notes, resources, and the learning journey.
       </p>
-      <div class="skills-grid stagger">
-        ${cards}
+      <div class="polymath-index stagger">
+        ${rows}
       </div>
     </div>
   `;
 }
 
-// --- POLYMATH DETAIL (sub-page for each skill) ---
+// --- POLYMATH DETAIL ---
 function renderPolymathDetail(slug) {
   const skill = polymathSkills.find(s => s.slug === slug);
   if (!skill) {
     return `
       <div class="page">
-        <div class="page-label">404</div>
-        <h1 class="page-title">Skill Not Found</h1>
-        <p class="page-subtitle"><a href="#/polymath" class="back-link">← Back to Polymath</a></p>
+        <a href="#/polymath" class="back-link">← Back to Polymath</a>
+        <h1 class="display display--lg">Skill not <span class="italic">found</span>.</h1>
       </div>
     `;
   }
 
   const links = skill.links.map((l, i) => `
-    <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="resource-link anim-scale" style="--i:${i}">
+    <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="resource-link anim-fade" style="--i:${i}">
       <span class="resource-link__name">${l.name}</span>
       <span class="resource-link__arrow">↗</span>
     </a>
   `).join('');
 
-  const tags = skill.resources.map(r => `<span class="skill-card__resource">${r}</span>`).join('');
+  const tags = skill.resources.map(r => `<span class="polymath-detail__resource">${r}</span>`).join('');
+  const idx = polymathSkills.findIndex(s => s.slug === slug);
+  const num = String(idx + 1).padStart(2, '0');
 
   return `
     <div class="page">
-      <a href="#/polymath" class="back-link anim-fade">← Back to Polymath</a>
+      <a href="#/polymath" class="back-link anim-fade">← Back to Polymath · Index</a>
       <div class="polymath-detail">
-        <div class="polymath-detail__header anim-fade">
+        <header class="polymath-detail__header anim-fade">
           <div class="polymath-detail__icon">${skill.icon}</div>
-          <h1 class="page-title">${skill.title}</h1>
-          <p class="page-subtitle">${skill.desc}</p>
-          <div class="skill-card__resources" style="margin-top: 0.5rem">${tags}</div>
-        </div>
+          <div class="polymath-detail__head-content">
+            <div class="kbd kbd--accent" style="align-self:flex-start;">№ ${num} — Domain</div>
+            <h1 class="display display--lg">${skill.title.replace(' & ', ' <em>&amp; </em>')}</h1>
+            <p class="lede">${skill.desc}</p>
+            <div class="polymath-detail__resources">${tags}</div>
+          </div>
+        </header>
 
-        <div class="polymath-detail__section anim-fade">
-          <h2 class="polymath-detail__section-title">// Notes</h2>
+        <section class="polymath-detail__section anim-fade">
+          <h2 class="polymath-detail__section-title">Notes</h2>
           <p class="polymath-detail__notes">${skill.notes}</p>
-        </div>
+        </section>
 
-        <div class="polymath-detail__section anim-fade">
-          <h2 class="polymath-detail__section-title">// Resources</h2>
+        <section class="polymath-detail__section anim-fade">
+          <h2 class="polymath-detail__section-title">Resources</h2>
           <div class="resource-links stagger">
             ${links}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   `;
@@ -722,32 +788,44 @@ function renderPolymathDetail(slug) {
 function renderTaste() {
   return `
     <div class="page">
-      <div class="page-label anim-fade">Curation</div>
-      <h1 class="page-title anim-fade">Taste</h1>
-      <p class="page-subtitle anim-fade">
-        The books and movies that shaped how I think and see the world.
+      <div class="section-head">
+        <span class="section-num">№ 02</span>
+        <span class="section-label">Curation</span>
+        <span class="section-right">Books · Films</span>
+      </div>
+      <h1 class="display display--xl anim-fade" style="margin-bottom:1.5rem;">
+        <span class="italic">Taste</span>.
+      </h1>
+      <p class="lede anim-fade" style="margin-bottom:3rem;">
+        The <em>books</em> and <em>films</em> that shaped how I think, build, and see the world.
       </p>
-      <div class="taste-duo stagger">
-        <a href="https://www.goodreads.com/user/show/196817664-neelakandan-nc" target="_blank" rel="noopener noreferrer" class="taste-big-card anim-scale" style="--i:0">
-          <div class="taste-big-card__icon">📚</div>
-          <div class="taste-big-card__content">
-            <h2 class="taste-big-card__title">Books</h2>
-            <p class="taste-big-card__desc">Explore my reading list on Goodreads — startups, systems thinking, psychology, and more.</p>
-            <div class="taste-big-card__cta">
-              <span>View on Goodreads</span>
-              <span class="taste-big-card__arrow">↗</span>
-            </div>
+      <div class="taste-diptych anim-fade">
+        <a href="https://www.goodreads.com/user/show/196817664-neelakandan-nc" target="_blank" rel="noopener noreferrer" class="taste-panel">
+          <div class="taste-panel__meta">
+            <span><span class="taste-panel__num">№ 01</span> &nbsp; The Library</span>
+            <span>↗ Goodreads</span>
+          </div>
+          <div>
+            <div class="taste-panel__glyph">B.</div>
+            <h2 class="taste-panel__title">On <span class="italic">reading</span>.</h2>
+            <p class="taste-panel__desc" style="margin-top:1rem;">Startups, systems thinking, psychology, philosophy, and the occasional novel. A running catalog of the ideas I return to.</p>
+          </div>
+          <div class="taste-panel__cta">
+            <span class="arrow-link">View on Goodreads <span class="arrow-link__arrow">↗</span></span>
           </div>
         </a>
-        <a href="https://www.imdb.com/user/ur211808830/?ref_=hm_nv_profile" target="_blank" rel="noopener noreferrer" class="taste-big-card anim-scale" style="--i:1">
-          <div class="taste-big-card__icon">🎬</div>
-          <div class="taste-big-card__content">
-            <h2 class="taste-big-card__title">Movies</h2>
-            <p class="taste-big-card__desc">Explore my watchlist on IMDb — tech dramas, finance thrillers, and biographies that inspire.</p>
-            <div class="taste-big-card__cta">
-              <span>View on IMDb</span>
-              <span class="taste-big-card__arrow">↗</span>
-            </div>
+        <a href="https://www.imdb.com/user/ur211808830/?ref_=hm_nv_profile" target="_blank" rel="noopener noreferrer" class="taste-panel">
+          <div class="taste-panel__meta">
+            <span><span class="taste-panel__num">№ 02</span> &nbsp; The Reel</span>
+            <span>↗ IMDb</span>
+          </div>
+          <div>
+            <div class="taste-panel__glyph">F.</div>
+            <h2 class="taste-panel__title">On <span class="italic">watching</span>.</h2>
+            <p class="taste-panel__desc" style="margin-top:1rem;">Tech dramas, finance thrillers, and biographies that inspire — curated cinema for anyone building something hard.</p>
+          </div>
+          <div class="taste-panel__cta">
+            <span class="arrow-link">View on IMDb <span class="arrow-link__arrow">↗</span></span>
           </div>
         </a>
       </div>
@@ -760,30 +838,35 @@ function renderLife() {
   const timeline = [
     {
       year: '2005',
+      yearHtml: '20<em>05</em>',
       title: 'The Beginning',
       desc: 'Early curiosity awakens. Exploring the world and forming the foundational perspective that would later fuel everything else.',
       tags: ['Curiosity', 'Origin']
     },
     {
       year: '2017',
-      title: 'Introduction to Tech World',
+      yearHtml: '20<em>17</em>',
+      title: 'Introduction to the Tech World',
       desc: 'First real exposure to technology through a Celkon smart 4G phone. Introduced to the incredible work of Sundar Pichai, sparking a deep interest in software engineering and leadership.',
       tags: ['Tech Exposure', 'Inspiration', 'Sundar Pichai']
     },
     {
       year: '2023',
-      title: 'Entering NITA College',
-      desc: 'Began formal engineering education at National Institute of Technology, Agartala (NITA). Diving into core STEM and surrounding myself with ambitious peers.',
+      yearHtml: '20<em>23</em>',
+      title: 'Entering NITA',
+      desc: 'Began formal engineering education at the National Institute of Technology, Agartala. Diving into core STEM and surrounding myself with ambitious peers.',
       tags: ['NITA', 'Engineering', 'STEM']
     },
     {
       year: 'Exploration',
+      yearHtml: '<em>Chapter</em><br>II',
       title: 'Early Ventures',
       desc: 'Attempted ModernClother (e-commerce) and MediPro Solutions (NABH agency). Learned hard lessons about pricing, sales, and B2B operations.',
       tags: ['E-Commerce', 'B2B', 'Lessons']
     },
     {
       year: 'Now',
+      yearHtml: '<em>Now</em>',
       title: 'Deep Builds',
       desc: 'Currently building repoforthat.dev and exploring AI agents. Applying everything learned from past ventures into high-leverage software products.',
       tags: ['Shipping', 'Active', 'Growth']
@@ -791,293 +874,39 @@ function renderLife() {
   ];
 
   const items = timeline.map((t, i) => {
-    const tags = t.tags.map(tag => `<span class="timeline-item__tag">${tag}</span>`).join('');
+    const num = String(i + 1).padStart(2, '0');
+    const tags = t.tags.map(tag => `<span class="chapter__tag">${tag}</span>`).join('');
     return `
-      <div class="timeline-item anim-fade" style="--i:${i}">
-        <div class="timeline-item__year">${t.year}</div>
-        <h3 class="timeline-item__title">${t.title}</h3>
-        <p class="timeline-item__desc">${t.desc}</p>
-        <div class="timeline-item__tags">${tags}</div>
-      </div>
+      <article class="chapter anim-fade" style="--i:${i}">
+        <div class="chapter__year">
+          <span class="chapter__year-num">${t.yearHtml}</span>
+          <span class="chapter__year-label">Ch. ${num}</span>
+        </div>
+        <div class="chapter__body">
+          <h3 class="chapter__title">${t.title}</h3>
+          <p class="chapter__desc">${t.desc}</p>
+          <div class="chapter__tags">${tags}</div>
+        </div>
+      </article>
     `;
   }).join('');
 
   return `
     <div class="page">
-      <div class="page-label anim-fade">Journey</div>
-      <h1 class="page-title anim-fade">Life Timeline</h1>
-      <p class="page-subtitle anim-fade">
-        The milestones, lessons, and turning points that shaped who I am.
+      <div class="section-head">
+        <span class="section-num">№ 01</span>
+        <span class="section-label">Journey</span>
+        <span class="section-right">${timeline.length} Chapters</span>
+      </div>
+      <h1 class="display display--xl anim-fade" style="margin-bottom:1.5rem;">
+        A <span class="italic">life</span>, so far.
+      </h1>
+      <p class="lede anim-fade" style="margin-bottom:3.5rem;">
+        The milestones, lessons, and turning points — a personal chronicle of becoming.
       </p>
-      <div class="timeline stagger">
+      <div class="chapters stagger">
         ${items}
       </div>
     </div>
   `;
-}
-
-// ============================================================
-// THREE.JS PAGE-SPECIFIC WEBGL
-// ============================================================
-function initThreeJS() {
-  const canvas = document.getElementById('bg-canvas');
-  if (!canvas) return;
-
-  scene = new THREE.Scene();
-  const initialFog = isLightMode ? 0xF6F8FC : 0x060B18;
-  scene.fog = new THREE.FogExp2(initialFog, 0.0012);
-
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 30;
-
-  renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  // Base Particle System — sapphire constellation
-  const particlesGeometry = new THREE.BufferGeometry();
-  const particlesCount = 1100;
-  const posArray = new Float32Array(particlesCount * 3);
-  const colorArray = new Float32Array(particlesCount * 3);
-  const seedArray = new Float32Array(particlesCount); // for per-particle phase
-  const sapphire = new THREE.Color(0x0F52BA);
-  const azure = new THREE.Color(0x4FA3F7);
-  const bright = new THREE.Color(0x2E7BE0);
-  for (let i = 0; i < particlesCount; i++) {
-    posArray[i * 3] = (Math.random() - 0.5) * 130;
-    posArray[i * 3 + 1] = (Math.random() - 0.5) * 130;
-    posArray[i * 3 + 2] = (Math.random() - 0.5) * 130;
-    seedArray[i] = Math.random() * Math.PI * 2;
-    const r = Math.random();
-    const c = r < 0.55 ? sapphire : r < 0.85 ? bright : azure;
-    colorArray[i * 3] = c.r;
-    colorArray[i * 3 + 1] = c.g;
-    colorArray[i * 3 + 2] = c.b;
-  }
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-  particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
-  particlesGeometry.userData.seeds = seedArray;
-  particlesGeometry.userData.basePos = posArray.slice();
-  const particlesMaterial = new THREE.PointsMaterial({
-    size: 0.07,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.9,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-  });
-  particles = new THREE.Points(particlesGeometry, particlesMaterial);
-  scene.add(particles);
-
-  mesh = new THREE.Group();
-  scene.add(mesh);
-
-  let mouseX = 0;
-  let mouseY = 0;
-  let targetCamX = 0;
-  let targetCamY = 0;
-  document.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-  });
-
-  const clock = new THREE.Clock();
-  const seeds = particlesGeometry.userData.seeds;
-  const basePos = particlesGeometry.userData.basePos;
-  const posAttr = particlesGeometry.attributes.position;
-
-  function animate() {
-    requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-
-    // Particle field — gentle orbital sway with per-particle phase
-    particles.rotation.y += 0.0006;
-    particles.rotation.x += 0.00025;
-    for (let i = 0; i < seeds.length; i++) {
-      const idx = i * 3;
-      const phase = seeds[i];
-      posAttr.array[idx] = basePos[idx] + Math.sin(t * 0.4 + phase) * 0.6;
-      posAttr.array[idx + 1] = basePos[idx + 1] + Math.cos(t * 0.3 + phase * 1.3) * 0.6;
-      posAttr.array[idx + 2] = basePos[idx + 2] + Math.sin(t * 0.5 + phase * 0.7) * 0.6;
-    }
-    posAttr.needsUpdate = true;
-
-    // Smooth camera wobble follows mouse + slow drift
-    targetCamX = mouseX * 5 + Math.sin(t * 0.15) * 0.8;
-    targetCamY = mouseY * 5 + Math.cos(t * 0.18) * 0.6;
-    camera.position.x += (targetCamX - camera.position.x) * 0.04;
-    camera.position.y += (targetCamY - camera.position.y) * 0.04;
-
-    // Scroll-driven dolly + parallax
-    const scrollY = window.scrollY || 0;
-    const scrollFactor = scrollY * 0.002;
-    camera.position.z = 30 + scrollFactor * 1.5;
-    camera.lookAt(scene.position);
-
-    // Animate the central mesh based on route
-    if (mesh) {
-      mesh.position.y = -scrollFactor * 4;
-      mesh.position.z = scrollFactor * 2;
-
-      // Universal gentle breathing
-      const breath = 1 + Math.sin(t * 0.8) * 0.025;
-      mesh.scale.set(breath, breath, breath);
-
-      // Soft mouse-follow rotation (organic, not glued)
-      mesh.rotation.x += (mouseY * 0.3 - mesh.rotation.x) * 0.02;
-      mesh.rotation.y += (mouseX * 0.3 - mesh.rotation.y) * 0.02;
-
-      if (currentPageRoute === '/' || currentPageRoute === '') {
-        mesh.rotation.y += 0.0035;
-        mesh.rotation.x += 0.0018;
-      } else if (currentPageRoute === '/builder') {
-        // Counter-rotating gears
-        mesh.children.forEach((child, i) => {
-          child.rotation.z += i % 2 === 0 ? 0.012 : -0.012;
-        });
-      } else if (currentPageRoute === '/projects') {
-        // Floating grid cubes
-        mesh.children.forEach((child, i) => {
-          child.rotation.x += 0.008;
-          child.rotation.y += 0.01;
-          child.position.y += Math.sin(t * 1.2 + i * 0.4) * 0.015;
-        });
-      } else if (currentPageRoute === '/polymath' || currentPageRoute.startsWith('/polymath/')) {
-        // Atom: nucleus pulses, rings spin at different speeds
-        mesh.children.forEach((child, i) => {
-          if (i === 0) {
-            const pulse = 1 + Math.sin(t * 1.5) * 0.08;
-            child.scale.set(pulse, pulse, pulse);
-          } else {
-            child.rotation.z += 0.005 * (i % 2 === 0 ? 1 : -1);
-            child.rotation.y += 0.003 * i;
-          }
-        });
-      } else if (currentPageRoute === '/life') {
-        // DNA helix wobbles
-        mesh.rotation.y += 0.004;
-      } else if (currentPageRoute === '/contact') {
-        // Pulse radar
-        mesh.children.forEach((child) => {
-          const pulse = 1 + Math.sin(t * 1.8) * 0.12;
-          child.scale.set(pulse, pulse, 1);
-        });
-      } else if (currentPageRoute === '/taste') {
-        // Cascading planes drift
-        mesh.children.forEach((child, i) => {
-          child.rotation.y = -Math.PI / 8 + (i * 0.1) + Math.sin(t * 0.4 + i) * 0.05;
-        });
-      } else {
-        mesh.rotation.y += 0.002;
-      }
-    }
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-}
-
-window.transitionScene = function (route) {
-  if (!scene) return;
-  currentPageRoute = route;
-
-  scene.remove(mesh);
-  mesh = new THREE.Group();
-
-  const material = new THREE.LineBasicMaterial({
-    color: 0x2E7BE0,
-    transparent: true,
-    opacity: 0.6
-  });
-
-  if (route === '/' || route === '') {
-    // Home: Connections / Neural Net (Points connected by lines)
-    const geo = new THREE.BufferGeometry();
-    const pts = [];
-    for (let i = 0; i < 60; i++) {
-      pts.push(new THREE.Vector3(
-        (Math.random() - 0.5) * 15,
-        (Math.random() - 0.5) * 15,
-        (Math.random() - 0.5) * 15
-      ));
-    }
-    geo.setFromPoints(pts);
-    const m = new THREE.LineSegments(geo, material);
-    mesh.add(m);
-  } else if (route === '/builder') {
-    // Builder: Interlocking Gears (using rings/cylinders)
-    const m1 = new THREE.Mesh(new THREE.TorusGeometry(4, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
-    const m2 = new THREE.Mesh(new THREE.TorusGeometry(3, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
-    m1.position.x = -3;
-    m2.position.x = 3;
-    m2.position.y = 2;
-    // Animate logic relies on looping through mesh.children
-    mesh.add(m1);
-    mesh.add(m2);
-  } else if (route === '/projects') {
-    // Projects: 3D Matrix / Grid of Boxes
-    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-    const boxMat = new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true, opacity: 0.4, transparent: true });
-    for (let x = -1; x <= 1; x++) {
-      for (let y = -1; y <= 1; y++) {
-        for (let z = -1; z <= 1; z++) {
-          const b = new THREE.Mesh(boxGeo, boxMat);
-          b.position.set(x * 4, y * 4, z * 4);
-          mesh.add(b);
-        }
-      }
-    }
-  } else if (route === '/polymath' || route.startsWith('/polymath/')) {
-    // Polymath: Atom Model (Nucleus + Rings)
-    const nucleus = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
-    mesh.add(nucleus);
-    for (let i = 0; i < 3; i++) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(7, 0.1, 8, 64), material);
-      ring.rotation.x = Math.random() * Math.PI;
-      ring.rotation.y = Math.random() * Math.PI;
-      mesh.add(ring);
-    }
-  } else if (route === '/taste') {
-    // Taste: Cascading Pages (Curved planes)
-    for (let i = 0; i < 5; i++) {
-      const geo = new THREE.PlaneGeometry(8, 12, 4, 4);
-      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true, side: THREE.DoubleSide }));
-      m.position.z = i * -2;
-      m.rotation.y = -Math.PI / 8 + (i * 0.1);
-      m.rotation.x = 0.2;
-      mesh.add(m);
-    }
-  } else if (route === '/life') {
-    // Life: DNA Double Helix
-    const geo = new THREE.BufferGeometry();
-    const pts = [];
-    for (let i = 0; i < 150; i++) {
-      const angle = i * 0.2;
-      const y = (i - 75) * 0.2;
-      pts.push(new THREE.Vector3(Math.cos(angle) * 3, y, Math.sin(angle) * 3));
-      pts.push(new THREE.Vector3(Math.cos(angle + Math.PI) * 3, y, Math.sin(angle + Math.PI) * 3));
-      if (i % 5 === 0) {
-        // connect strands
-        pts.push(new THREE.Vector3(Math.cos(angle) * 3, y, Math.sin(angle) * 3));
-        pts.push(new THREE.Vector3(Math.cos(angle + Math.PI) * 3, y, Math.sin(angle + Math.PI) * 3));
-      }
-    }
-    geo.setFromPoints(pts);
-    const m = new THREE.LineSegments(geo, material);
-    mesh.add(m);
-  } else if (route === '/contact') {
-    // Contact: Pulse Radar / Satellite Ring
-    const geo = new THREE.RingGeometry(2, 12, 32);
-    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
-    m.rotation.x = Math.PI / 2;
-    mesh.add(m);
-  }
-
-  scene.add(mesh);
 }
