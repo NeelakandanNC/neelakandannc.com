@@ -167,8 +167,8 @@ function renderHome() {
           <div class="anim-fade" style="--i:2">
             <div class="home-hero__caption-mono">— Building at the intersection of STEM</div>
             <p class="home-hero__bio" style="margin-top:1.25rem;">
-              I'm a builder. Finding synergy between core <em>electronics</em>
-              and the world of machine learning, frontier tech, and finance.
+              I build at the intersection of <em>AI and markets</em>.
+              Agents, models, and the systems that create leverage.
               I don't just study systems — I <em>build</em> them.
             </p>
           </div>
