@@ -50,8 +50,12 @@ function navigate() {
   // Scroll to top
   window.scrollTo(0, 0);
 
-  // Initialize scroll animations
-  requestAnimationFrame(() => initScrollAnimations());
+  // Initialize scroll animations + spotlight + page-in
+  requestAnimationFrame(() => {
+    initScrollAnimations();
+    initCardSpotlight();
+    initPageEnter();
+  });
 
   // Transition WebGL scene
   if (typeof transitionScene === 'function') {
@@ -61,7 +65,11 @@ function navigate() {
 
 window.addEventListener('hashchange', navigate);
 window.addEventListener('load', () => {
-  initThreeJS();
+  try {
+    initThreeJS();
+  } catch (e) {
+    console.warn('WebGL unavailable, continuing without background scene', e);
+  }
   navigate();
 });
 
@@ -102,12 +110,12 @@ function applyTheme(isLight) {
     document.body.classList.add('light-theme');
     iconSun.style.display = 'none';
     iconMoon.style.display = 'block';
-    if (scene) scene.fog.color.setHex(0xffffff);
+    if (scene) scene.fog.color.setHex(0xF6F8FC);
   } else {
     document.body.classList.remove('light-theme');
     iconSun.style.display = 'block';
     iconMoon.style.display = 'none';
-    if (scene) scene.fog.color.setHex(0x000000);
+    if (scene) scene.fog.color.setHex(0x060B18);
   }
 }
 
@@ -136,6 +144,42 @@ function initScrollAnimations() {
   }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
   elements.forEach(el => observer.observe(el));
+}
+
+// ============================================================
+// CURSOR-FOLLOWING CARD SPOTLIGHT
+// ============================================================
+function initCardSpotlight() {
+  const cards = document.querySelectorAll(
+    '.project-card, .skill-card, .venture-card, .timeline-item, .taste-big-card, .social-card, .stat-card, .resource-link'
+  );
+  cards.forEach(card => {
+    if (!card.querySelector(':scope > .glow')) {
+      const g = document.createElement('span');
+      g.className = 'glow';
+      card.prepend(g);
+    }
+    card.addEventListener('pointermove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      card.style.setProperty('--my', `${e.clientY - r.top}px`);
+    });
+  });
+}
+
+// ============================================================
+// SMOOTH PAGE-IN FADE
+// ============================================================
+function initPageEnter() {
+  const main = document.getElementById('app');
+  if (!main) return;
+  main.style.opacity = '0';
+  main.style.transform = 'translateY(8px)';
+  main.style.transition = 'opacity 0.45s cubic-bezier(0.16,1,0.3,1), transform 0.45s cubic-bezier(0.16,1,0.3,1)';
+  requestAnimationFrame(() => {
+    main.style.opacity = '1';
+    main.style.transform = 'translateY(0)';
+  });
 }
 
 // ============================================================
@@ -780,7 +824,8 @@ function initThreeJS() {
   if (!canvas) return;
 
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x000000, 0.001);
+  const initialFog = isLightMode ? 0xF6F8FC : 0x060B18;
+  scene.fog = new THREE.FogExp2(initialFog, 0.0012);
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 30;
@@ -789,20 +834,37 @@ function initThreeJS() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  // Base Particle System (always present)
+  // Base Particle System — sapphire constellation
   const particlesGeometry = new THREE.BufferGeometry();
-  const particlesCount = 700;
+  const particlesCount = 1100;
   const posArray = new Float32Array(particlesCount * 3);
-  for (let i = 0; i < particlesCount * 3; i++) {
-    posArray[i] = (Math.random() - 0.5) * 100;
+  const colorArray = new Float32Array(particlesCount * 3);
+  const seedArray = new Float32Array(particlesCount); // for per-particle phase
+  const sapphire = new THREE.Color(0x0F52BA);
+  const azure = new THREE.Color(0x4FA3F7);
+  const bright = new THREE.Color(0x2E7BE0);
+  for (let i = 0; i < particlesCount; i++) {
+    posArray[i * 3] = (Math.random() - 0.5) * 130;
+    posArray[i * 3 + 1] = (Math.random() - 0.5) * 130;
+    posArray[i * 3 + 2] = (Math.random() - 0.5) * 130;
+    seedArray[i] = Math.random() * Math.PI * 2;
+    const r = Math.random();
+    const c = r < 0.55 ? sapphire : r < 0.85 ? bright : azure;
+    colorArray[i * 3] = c.r;
+    colorArray[i * 3 + 1] = c.g;
+    colorArray[i * 3 + 2] = c.b;
   }
   particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+  particlesGeometry.userData.seeds = seedArray;
+  particlesGeometry.userData.basePos = posArray.slice();
   const particlesMaterial = new THREE.PointsMaterial({
-    size: 0.05,
-    color: 0x0F52BA,
+    size: 0.07,
+    vertexColors: true,
     transparent: true,
-    opacity: 0.8,
-    blending: THREE.AdditiveBlending
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
   });
   particles = new THREE.Points(particlesGeometry, particlesMaterial);
   scene.add(particles);
@@ -812,42 +874,101 @@ function initThreeJS() {
 
   let mouseX = 0;
   let mouseY = 0;
+  let targetCamX = 0;
+  let targetCamY = 0;
   document.addEventListener('mousemove', (event) => {
     mouseX = (event.clientX / window.innerWidth) * 2 - 1;
     mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
   });
 
+  const clock = new THREE.Clock();
+  const seeds = particlesGeometry.userData.seeds;
+  const basePos = particlesGeometry.userData.basePos;
+  const posAttr = particlesGeometry.attributes.position;
+
   function animate() {
     requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
 
-    // Rotate particles slowly
-    particles.rotation.y += 0.0005;
-    particles.rotation.x += 0.0002;
+    // Particle field — gentle orbital sway with per-particle phase
+    particles.rotation.y += 0.0006;
+    particles.rotation.x += 0.00025;
+    for (let i = 0; i < seeds.length; i++) {
+      const idx = i * 3;
+      const phase = seeds[i];
+      posAttr.array[idx] = basePos[idx] + Math.sin(t * 0.4 + phase) * 0.6;
+      posAttr.array[idx + 1] = basePos[idx + 1] + Math.cos(t * 0.3 + phase * 1.3) * 0.6;
+      posAttr.array[idx + 2] = basePos[idx + 2] + Math.sin(t * 0.5 + phase * 0.7) * 0.6;
+    }
+    posAttr.needsUpdate = true;
 
-    // Interactive camera wobble
-    camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
-    camera.position.y += (mouseY * 5 - camera.position.y) * 0.05;
+    // Smooth camera wobble follows mouse + slow drift
+    targetCamX = mouseX * 5 + Math.sin(t * 0.15) * 0.8;
+    targetCamY = mouseY * 5 + Math.cos(t * 0.18) * 0.6;
+    camera.position.x += (targetCamX - camera.position.x) * 0.04;
+    camera.position.y += (targetCamY - camera.position.y) * 0.04;
+
+    // Scroll-driven dolly + parallax
+    const scrollY = window.scrollY || 0;
+    const scrollFactor = scrollY * 0.002;
+    camera.position.z = 30 + scrollFactor * 1.5;
     camera.lookAt(scene.position);
 
     // Animate the central mesh based on route
     if (mesh) {
+      mesh.position.y = -scrollFactor * 4;
+      mesh.position.z = scrollFactor * 2;
+
+      // Universal gentle breathing
+      const breath = 1 + Math.sin(t * 0.8) * 0.025;
+      mesh.scale.set(breath, breath, breath);
+
+      // Soft mouse-follow rotation (organic, not glued)
+      mesh.rotation.x += (mouseY * 0.3 - mesh.rotation.x) * 0.02;
+      mesh.rotation.y += (mouseX * 0.3 - mesh.rotation.y) * 0.02;
+
       if (currentPageRoute === '/' || currentPageRoute === '') {
-        mesh.rotation.x += 0.005;
-        mesh.rotation.y += 0.005;
+        mesh.rotation.y += 0.0035;
+        mesh.rotation.x += 0.0018;
       } else if (currentPageRoute === '/builder') {
-        mesh.rotation.x += 0.01;
-        mesh.rotation.y -= 0.005;
-      } else if (currentPageRoute === '/projects') {
+        // Counter-rotating gears
         mesh.children.forEach((child, i) => {
-          child.rotation.x += 0.01;
+          child.rotation.z += i % 2 === 0 ? 0.012 : -0.012;
+        });
+      } else if (currentPageRoute === '/projects') {
+        // Floating grid cubes
+        mesh.children.forEach((child, i) => {
+          child.rotation.x += 0.008;
           child.rotation.y += 0.01;
-          child.position.y += Math.sin(Date.now() * 0.001 + i) * 0.02;
+          child.position.y += Math.sin(t * 1.2 + i * 0.4) * 0.015;
+        });
+      } else if (currentPageRoute === '/polymath' || currentPageRoute.startsWith('/polymath/')) {
+        // Atom: nucleus pulses, rings spin at different speeds
+        mesh.children.forEach((child, i) => {
+          if (i === 0) {
+            const pulse = 1 + Math.sin(t * 1.5) * 0.08;
+            child.scale.set(pulse, pulse, pulse);
+          } else {
+            child.rotation.z += 0.005 * (i % 2 === 0 ? 1 : -1);
+            child.rotation.y += 0.003 * i;
+          }
         });
       } else if (currentPageRoute === '/life') {
-        particles.rotation.y += 0.002;
+        // DNA helix wobbles
+        mesh.rotation.y += 0.004;
+      } else if (currentPageRoute === '/contact') {
+        // Pulse radar
+        mesh.children.forEach((child) => {
+          const pulse = 1 + Math.sin(t * 1.8) * 0.12;
+          child.scale.set(pulse, pulse, 1);
+        });
+      } else if (currentPageRoute === '/taste') {
+        // Cascading planes drift
+        mesh.children.forEach((child, i) => {
+          child.rotation.y = -Math.PI / 8 + (i * 0.1) + Math.sin(t * 0.4 + i) * 0.05;
+        });
       } else {
         mesh.rotation.y += 0.002;
-        mesh.rotation.x += 0.002;
       }
     }
 
@@ -870,7 +991,7 @@ window.transitionScene = function (route) {
   mesh = new THREE.Group();
 
   const material = new THREE.LineBasicMaterial({
-    color: 0x0F52BA,
+    color: 0x2E7BE0,
     transparent: true,
     opacity: 0.6
   });
@@ -891,8 +1012,8 @@ window.transitionScene = function (route) {
     mesh.add(m);
   } else if (route === '/builder') {
     // Builder: Interlocking Gears (using rings/cylinders)
-    const m1 = new THREE.Mesh(new THREE.TorusGeometry(4, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
-    const m2 = new THREE.Mesh(new THREE.TorusGeometry(3, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
+    const m1 = new THREE.Mesh(new THREE.TorusGeometry(4, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
+    const m2 = new THREE.Mesh(new THREE.TorusGeometry(3, 0.5, 8, 24), new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
     m1.position.x = -3;
     m2.position.x = 3;
     m2.position.y = 2;
@@ -902,7 +1023,7 @@ window.transitionScene = function (route) {
   } else if (route === '/projects') {
     // Projects: 3D Matrix / Grid of Boxes
     const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-    const boxMat = new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true, opacity: 0.4, transparent: true });
+    const boxMat = new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true, opacity: 0.4, transparent: true });
     for (let x = -1; x <= 1; x++) {
       for (let y = -1; y <= 1; y++) {
         for (let z = -1; z <= 1; z++) {
@@ -914,7 +1035,7 @@ window.transitionScene = function (route) {
     }
   } else if (route === '/polymath' || route.startsWith('/polymath/')) {
     // Polymath: Atom Model (Nucleus + Rings)
-    const nucleus = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
+    const nucleus = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
     mesh.add(nucleus);
     for (let i = 0; i < 3; i++) {
       const ring = new THREE.Mesh(new THREE.TorusGeometry(7, 0.1, 8, 64), material);
@@ -926,7 +1047,7 @@ window.transitionScene = function (route) {
     // Taste: Cascading Pages (Curved planes)
     for (let i = 0; i < 5; i++) {
       const geo = new THREE.PlaneGeometry(8, 12, 4, 4);
-      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true, side: THREE.DoubleSide }));
+      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true, side: THREE.DoubleSide }));
       m.position.z = i * -2;
       m.rotation.y = -Math.PI / 8 + (i * 0.1);
       m.rotation.x = 0.2;
@@ -953,7 +1074,7 @@ window.transitionScene = function (route) {
   } else if (route === '/contact') {
     // Contact: Pulse Radar / Satellite Ring
     const geo = new THREE.RingGeometry(2, 12, 32);
-    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x0F52BA, wireframe: true }));
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x2E7BE0, wireframe: true }));
     m.rotation.x = Math.PI / 2;
     mesh.add(m);
   }
