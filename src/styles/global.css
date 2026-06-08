@@ -1,0 +1,447 @@
+/* ============================================================
+   DESIGN TOKENS
+   Brand: Sapphire #0F52BA. Dark is the default theme;
+   [data-theme="light"] is the warm-cream variant.
+   ============================================================ */
+:root {
+  /* ---- Brand (constant across themes) ---- */
+  --brand: #3a86ff;          /* the core brand blue */
+  --brand-bright: #5b9bff;   /* lifted brand for dark surfaces */
+
+  /* ---- DARK THEME (default) ---- */
+  --bg: #07080c;
+  --bg-rgb: 7, 8, 12;
+  --bg-elev: #0d1018;
+  --bg-soft: #11141d;
+  --surface: #10131c;
+  --surface-2: #11151f;
+  --line: #ffffff14;
+  --line-strong: #ffffff26;
+
+  --text: #f2f5fb;
+  --text-dim: #9aa3b6;
+  --text-faint: #626b7e;
+
+  --accent: #3a86ff;         /* brand blue */
+  --accent-soft: #3a86ff33;  /* translucent brand glow */
+  --accent-glow: #3a86ff73;  /* stronger brand glow for shadows */
+  --accent-ink: #ffffff;     /* text on accent fills */
+
+  /* status / semantic */
+  --ok: #38d27f;
+  --warn: #f0a830;
+  --err: #f5536a;
+  --neutral: #8b93a7;
+
+  --hero-glow-1: #3a86ff55;
+  --hero-glow-2: #2563eb22;
+
+  /* Type */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Rhythm */
+  --maxw: 1240px;
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --radius: 14px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- LIGHT THEME (warm cream, from the template) ---- */
+:root[data-theme='light'] {
+  --bg: #fbf8f4;             /* "Fantasy" cream */
+  --bg-rgb: 251, 248, 244;
+  --bg-elev: #ffffff;
+  --bg-soft: #1e1a1c08;
+  --surface: #ffffff;
+  --surface-2: #fffdfa;
+  --line: #1e1a1c17;
+  --line-strong: #1e1a1c2b;
+
+  --text: #1e1a1c;           /* "Thunder" ink */
+  --text-dim: #5d5760;
+  --text-faint: #8c8690;
+
+  --accent: #2f6fe0;         /* brand blue, slightly deepened for cream contrast */
+  --accent-soft: #2f6fe01f;
+  --accent-glow: #2f6fe04d;
+  --accent-ink: #ffffff;
+
+  --ok: #1f9d5e;
+  --warn: #c47d12;
+  --err: #d23b48;
+  --neutral: #7c7480;
+
+  --hero-glow-1: #3a86ff2b;
+  --hero-glow-2: #3a86ff14;
+}
+
+/* Smooth the theme switch */
+html {
+  transition: background-color 0.5s var(--ease);
+}
+body,
+.site-header.is-scrolled,
+.feature-card,
+.entry,
+.contact-card,
+.domain {
+  transition: background-color 0.5s var(--ease), border-color 0.5s var(--ease),
+    color 0.5s var(--ease);
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Lenis smooth-scroll requires native scroll behaviour off */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  overflow-x: hidden;
+  letter-spacing: -0.011em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ============================================================
+   PRIMITIVES
+   ============================================================ */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.italic {
+  font-style: italic;
+}
+
+/* Fluid display type */
+.display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+.display--xl {
+  font-size: clamp(3rem, 11vw, 8.5rem);
+}
+.display--lg {
+  font-size: clamp(2.4rem, 7vw, 5rem);
+}
+.display--md {
+  font-size: clamp(1.9rem, 4.5vw, 3rem);
+}
+
+.text-dim {
+  color: var(--text-dim);
+}
+
+.lede {
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  color: var(--text-dim);
+  max-width: 56ch;
+  line-height: 1.55;
+}
+
+.italic-blue {
+  font-style: italic;
+  color: var(--accent);
+}
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   BUTTONS (shared, from the no-image system)
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0.85rem 1.4rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: transform 0.18s var(--ease), background-color 0.25s var(--ease),
+    border-color 0.25s var(--ease), box-shadow 0.3s var(--ease), color 0.25s var(--ease);
+  will-change: transform;
+}
+.btn .arrow {
+  transition: transform 0.25s var(--ease);
+}
+.btn:hover .arrow {
+  transform: translateX(4px);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn--solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 10px 30px -12px var(--accent-glow);
+}
+.btn--solid:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px -14px var(--accent-glow);
+}
+.btn--ghost {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+.btn--ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   SECTION INDEX / STATUS CHIPS
+   ============================================================ */
+.sec-index {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* canonical chip (used by hero, ventures, selected work) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 7px 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+}
+.chip__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--text-dim);
+}
+.status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--neutral);
+}
+.status--active {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+}
+.status--active .status__dot {
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+  animation: statusPulse 1.8s var(--ease) infinite;
+}
+.status--closed { color: var(--err); }
+.status--closed .status__dot { background: var(--err); }
+.status--paused { color: var(--warn); }
+.status--paused .status__dot { background: var(--warn); }
+.status--neutral { color: var(--neutral); }
+.status--neutral .status__dot { background: var(--neutral); }
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ============================================================
+   SCROLL PROGRESS BAR (mounted globally)
+   ============================================================ */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 9998;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 40%, var(--text)));
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* ============================================================
+   CUSTOM CURSOR (desktop / fine-pointer only)
+   ============================================================ */
+.cursor,
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+.cursor {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  display: grid;
+  place-items: center;
+  transition: width 0.28s var(--ease), height 0.28s var(--ease), margin 0.28s var(--ease),
+    background-color 0.28s var(--ease), opacity 0.3s var(--ease);
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: opacity 0.3s var(--ease);
+}
+.cursor.is-hover {
+  width: 66px;
+  height: 66px;
+  margin: -33px 0 0 -33px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.cursor.is-down {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+}
+.cursor__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  white-space: nowrap;
+}
+.cursor.has-label {
+  mix-blend-mode: normal;
+  width: auto;
+  height: auto;
+  padding: 6px 12px;
+  margin: -14px 0 0 16px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.cursor.has-label .cursor__label {
+  opacity: 1;
+  color: var(--accent-ink);
+}
+html.has-cursor .cursor.has-label ~ .cursor-dot {
+  opacity: 0;
+}
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}
+@media (pointer: coarse) {
+  .cursor,
+  .cursor-dot {
+    display: none !important;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .cursor,
+  .cursor-dot {
+    display: none !important;
+  }
+}

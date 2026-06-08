@@ -1,0 +1,321 @@
+================================================================
+NEELAKANDAN NC — WEBSITE CONTENT
+Extracted: 2026-06-07
+Source: neelakandannc.com (personal portfolio site)
+================================================================
+
+SITE META
+---------
+Title: Neelakandan NC
+Description: Neelakandan NC — Founder, Builder, Engineer. Building at the
+intersection of AI, markets, and frontier technology.
+
+Masthead: NC / Broadsheet  ·  [live date]  ·  [live clock] IST
+
+Navigation:
+  01 Life
+  02 Taste
+  03 Polymath
+  04 Builder
+  05 Contact
+
+Footer:
+  INDEX: Life · Taste · Polymath · Builder · Contact
+  DATELINE: © 2026 Neelakandan NC. All rights reserved.
+            — Built with purpose.
+
+
+================================================================
+HOME
+================================================================
+
+№ 01 — Vision
+Builder · Engineer · Polymath  ·  India
+
+Neelakandan
+
+— Building at the intersection of STEM
+
+I build at the intersection of AI and markets. Agents, models, and the
+systems that create leverage. I don't just study systems — I build them.
+
+Focus:    Frontier Tech
+Status:   Building
+Open to:  Collab · Capital
+
+Tags: Frontier Tech · Finance & Economics · STEM · Tech · Venture
+
+Portrait — move your cursor to suit up (portrait → Iron Man reveal)
+
+--- № 02 — Thesis · The Philosophy ---
+
+My Philosophy (Long-form)
+
+The next decade belongs to those who can bridge the gap between capital
+and code.
+
+Advanced Tech — Developing AI agents and LLM-integrated workflows that
+actually work — from multi-agent orchestration to production-grade ML
+pipelines.
+
+Finance — Analyzing markets through the lens of data, algorithms, and
+venture-scale thinking. Building at the intersection of quant and code.
+
+Creativity — Documenting the process of building in public, to inspire a
+new standard of technical craftsmanship.
+
+Stats:
+  ∞     Curiosity Level
+  24/7  Building Mode
+
+
+================================================================
+LIFE (№ 01 — Journey · 5 Chapters)
+================================================================
+
+A life, so far.
+The milestones, lessons, and turning points — a personal chronicle of
+becoming.
+
+Ch. 01 — 2005 — The Beginning
+Early curiosity awakens. Exploring the world and forming the foundational
+perspective that would later fuel everything else.
+Tags: Curiosity, Origin
+
+Ch. 02 — 2017 — Introduction to the Tech World
+First real exposure to technology through a Celkon smart 4G phone.
+Introduced to the incredible work of Sundar Pichai, sparking a deep
+interest in software engineering and leadership.
+Tags: Tech Exposure, Inspiration, Sundar Pichai
+
+Ch. 03 — 2023 — Entering NITA
+Began formal engineering education at the National Institute of
+Technology, Agartala. Diving into core STEM and surrounding myself with
+ambitious peers.
+Tags: NITA, Engineering, STEM
+
+Ch. 04 — Chapter II — Early Ventures
+Attempted ModernClother (e-commerce) and MediPro Solutions (NABH agency).
+Learned hard lessons about pricing, sales, and B2B operations.
+Tags: E-Commerce, B2B, Lessons
+
+Ch. 05 — Now — Deep Builds
+Currently building repoforthat.dev and exploring AI agents. Applying
+everything learned from past ventures into high-leverage software products.
+Tags: Shipping, Active, Growth
+
+
+================================================================
+TASTE (№ 02 — Curation · Books · Films)
+================================================================
+
+Taste.
+The books and films that shaped how I think, build, and see the world.
+
+№ 01 — The Library (↗ Goodreads)
+B. — On reading.
+Startups, systems thinking, psychology, philosophy, and the occasional
+novel. A running catalog of the ideas I return to.
+Link: https://www.goodreads.com/user/show/196817664-neelakandan-nc
+
+№ 02 — The Reel (↗ IMDb)
+F. — On watching.
+Tech dramas, finance thrillers, and biographies that inspire — curated
+cinema for anyone building something hard.
+Link: https://www.imdb.com/user/ur211808830/?ref_=hm_nv_profile
+
+
+================================================================
+POLYMATH (№ 03 — Knowledge · 5 Domains)
+================================================================
+
+The Polymath.
+Every skill is a weapon. An index of domains — open any entry for notes,
+resources, and the learning journey.
+
+----------------------------------------------------------------
+№ 01 — Science  ⚡
+Core electronics, circuit design, and the engineering foundation behind
+everything.
+Resources: University, NPTEL, YouTube
+
+Notes: Where it all started. Core Electronics background — circuit design,
+embedded systems, signal processing. This foundation gives a
+hardware-aware perspective to software engineering that most developers
+lack.
+
+Links:
+  NPTEL — https://nptel.ac.in/
+  All About Circuits — https://www.allaboutcircuits.com/
+
+----------------------------------------------------------------
+№ 02 — Technology  {}
+Full-stack development, web technologies, cloud, and scalable architecture.
+Resources: FreeCodeCamp, MDN Docs, LeetCode, System Design Primer, Docker Docs
+
+Notes: Started with Python, moved to JavaScript/TypeScript for full-stack.
+Currently deep in Node.js, React/Next.js, and building CLI tools. The best
+way to learn is to build real projects — every side project taught more
+than a tutorial ever could. Understanding infrastructure is non-negotiable
+for shipping real products. From Docker containers to cloud deployments,
+from PostgreSQL to pgvector — each layer of the stack matters. Currently
+focused on edge computing and serverless patterns.
+
+Links:
+  FreeCodeCamp — https://www.freecodecamp.org/
+  MDN Web Docs — https://developer.mozilla.org/
+  LeetCode — https://leetcode.com/
+  The Odin Project — https://www.theodinproject.com/
+  System Design Primer — https://github.com/donnemartin/system-design-primer
+  AWS Documentation — https://docs.aws.amazon.com/
+  Docker Docs — https://docs.docker.com/
+
+----------------------------------------------------------------
+№ 03 — Engineering  ◈
+AI agents, LLM-integrated workflows, machine learning, and product design.
+Resources: Andrew Ng, Fast.ai, Kaggle, Figma, Refactoring UI
+
+Notes: Transitioning from core electronics into ML/AI. Focused on
+practical AI — building agents, LLM pipelines, and production-grade ML
+systems. Currently exploring multi-agent orchestration and RAG pipelines.
+Design is not just how it looks — it's how it works. Focus on utility-first
+design: every element must earn its place. Inspired by terminal aesthetics,
+Bloomberg-style data density, and minimalist fintech UIs.
+
+Links:
+  Andrew Ng (Coursera) — https://www.coursera.org/instructor/andrewng
+  Fast.ai — https://www.fast.ai/
+  Kaggle — https://www.kaggle.com/
+  Hugging Face — https://huggingface.co/
+  Figma — https://www.figma.com/
+  Refactoring UI — https://www.refactoringui.com/
+
+----------------------------------------------------------------
+№ 04 — Mathematics  ∑
+Algorithmic thinking, statistical modeling, and the quantitative backbone
+of AI and markets.
+Resources: Papers With Code, Kaggle, QuantConnect
+
+Notes: The quantitative backbone behind everything — neural networks, data
+science, and algorithmic strategies all reduce to mathematics. Studying
+market microstructure, options pricing models, and the linear algebra and
+statistics under modern ML. The goal: turn rigorous models into systems
+that compound.
+
+Links:
+  Papers With Code — https://paperswithcode.com/
+  Kaggle — https://www.kaggle.com/
+  QuantConnect — https://www.quantconnect.com/
+
+----------------------------------------------------------------
+№ 05 — Finance  ◉
+Market analysis, entrepreneurship, and the intersection of capital and code.
+Resources: Zerodha Varsity, Investopedia, YC Library, Indie Hackers
+
+Notes: Finance through the lens of engineering. Studying market
+microstructure, options pricing models, and algorithmic strategies. The
+goal: bridge the gap between capital and code. Currently building
+quantitative models and exploring systematic trading. Learned business
+through doing — from ModernClother to MediPro to Doubt Room. Failure is
+the best teacher. Key insight: distribution > product in early stages.
+Currently focused on building in public and lean startup methodology.
+
+Links:
+  Zerodha Varsity — https://zerodha.com/varsity/
+  Investopedia — https://www.investopedia.com/
+  QuantConnect — https://www.quantconnect.com/
+  Y Combinator Library — https://www.ycombinator.com/library
+  Indie Hackers — https://www.indiehackers.com/
+  Paul Graham Essays — http://paulgraham.com/articles.html
+
+
+================================================================
+BUILDER (№ 04 — Builder Log · 9 Ventures · 1 Active)
+================================================================
+
+Born builder.
+Every venture is a lesson. Every failure is data. What follows is a
+working log — the journey, unredacted.
+
+№ 01 — SciTech Knowledge  [Foundation]
+Learned the foundations through YouTube channels. Self-taught across
+science and technology, building a base of knowledge that fuels everything
+after.
+Lesson: Self-education is the most powerful investment you can make.
+
+№ 02 — ModernClother  [Lesson Learned]
+First e-commerce venture — tried to sell apparel online. Pricing was too
+high and I had no understanding of sales and marketing at the time.
+Lesson: Product-market fit matters more than the product itself. Pricing
+and distribution are everything.
+
+№ 03 — MediPro Solutions  [NABH Agency]
+Created an agency to help hospitals obtain NABH certification. Built the
+operations, outreach, and service model from scratch.
+Link: https://1mediprosolutions.wixsite.com/medi-pro-solutions
+Lesson: B2B services require deep domain expertise and trust-building over
+time.
+
+№ 04 — Flaura  [Paused]
+Did beta testing and created a deck. Stopped due to lack of funds and a gap
+in innovation that I couldn't bridge at the time.
+Lesson: Timing and capital are just as important as the idea.
+
+№ 05 — LumoScript  [Stopped]
+Just started — a new venture in the early stages. No clients yet so the
+work is still nascent, but the foundation is being laid.
+Lesson: Every big thing starts small. The key is to start.
+
+№ 06 — Arthhive  [Stopped — 9 mo]
+Worked on this for 9 months. Due to lack of time and competing priorities,
+we decided to pause the project.
+Lesson: Time is the scarcest resource. Choose your battles wisely.
+
+№ 07 — Ween  [Stopped]
+MVP is ready and the launch was planned. The product was taking shape but
+is currently stopped.
+Lesson: Ship it. Iterate. Don't wait for perfect.
+
+№ 08 — repoforthat.dev  [Closed]
+A platform to discover the right repo for any problem. Shipped the curation
+engine and developer tooling surface, then sunset the venture to refocus.
+Link: https://repoforthat.dev
+Lesson: Build what you wish existed — and know when to close the chapter.
+
+№ 09 — Agentronics  [Active]
+Currently active — building at the intersection of autonomous AI agents and
+electronics. Agentic systems that reason about hardware, sensors, and the
+physical world.
+Lesson: The next frontier is agents that touch atoms, not just bits.
+
+
+================================================================
+CONTACT (№ 05 — Connect · 4 Channels)
+================================================================
+
+Get in touch.
+Four channels. No noise. Pick whichever fits the conversation.
+
+№ 01 — Twitter · X
+X — @NeelakandanNC
+Thoughts in public. Fastest replies here.
+https://x.com/NeelakandanNC
+
+№ 02 — Professional
+LinkedIn — neelakandan-nc
+For collaboration, capital, and formal outreach.
+https://www.linkedin.com/in/neelakandan-nc
+
+№ 03 — Direct Mail
+Gmail — neelakandannithin@gmail.com
+Long-form inquiries, proposals, and decks.
+mailto:neelakandannithin@gmail.com
+
+№ 04 — Video · Build Logs
+YouTube — @NeelakandanNC
+Building in public, one episode at a time.
+https://www.youtube.com/@NeelakandanNC
+
+================================================================
+END OF CONTENT
+================================================================

@@ -1,0 +1,104 @@
+[2026-04-18T07:18:52.080Z] [debug] [vite] connecting...
+[2026-04-18T07:18:52.118Z] [debug] [vite] connected.
+[2026-04-18T07:18:53.403Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:18:53.403Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:18:53.403Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:18:53.403Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:18:53.403Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:18:53.403Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:18:53.403Z] [error] THREE.WebGLRenderer: Error creating WebGL context.
+[2026-04-18T07:18:53.404Z] [warning] WebGL unavailable, continuing without background scene Error: Error creating WebGL context.
+    at new WebGLRenderer (https://unpkg.com/three@0.160.0/build/three.module.js:28672:13)
+    at initThreeJS (http://localhost:5173/main.js:879:14)
+    at http://localhost:5173/main.js:65:5
+[2026-04-18T07:21:37.847Z] [debug] [vite] connecting...
+[2026-04-18T07:21:37.859Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:37.859Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:37.859Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:37.859Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:37.859Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:37.859Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:37.859Z] [error] THREE.WebGLRenderer: Error creating WebGL context.
+[2026-04-18T07:21:37.859Z] [warning] WebGL unavailable, continuing without background scene Error: Error creating WebGL context.
+    at new WebGLRenderer (https://unpkg.com/three@0.160.0/build/three.module.js:28672:13)
+    at initThreeJS (http://localhost:5173/main.js:879:14)
+    at http://localhost:5173/main.js:65:5
+[2026-04-18T07:21:37.895Z] [debug] [vite] connected.
+[2026-04-18T07:21:52.511Z] [debug] [vite] connecting...
+[2026-04-18T07:21:52.515Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:52.516Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:52.516Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:52.516Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:52.516Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:52.516Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:21:52.516Z] [error] THREE.WebGLRenderer: Error creating WebGL context.
+[2026-04-18T07:21:52.516Z] [warning] WebGL unavailable, continuing without background scene Error: Error creating WebGL context.
+    at new WebGLRenderer (https://unpkg.com/three@0.160.0/build/three.module.js:28672:13)
+    at initThreeJS (http://localhost:5173/main.js:879:14)
+    at http://localhost:5173/main.js:65:5
+[2026-04-18T07:21:52.520Z] [debug] [vite] connected.
+[2026-04-18T07:23:08.464Z] [debug] [vite] connecting...
+[2026-04-18T07:23:08.478Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:23:08.478Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:23:08.478Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:23:08.478Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:23:08.482Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:23:08.482Z] [error] THREE.WebGLRenderer: A WebGL context could not be created. Reason:  Could not create a WebGL context, VENDOR = 0xffff, DEVICE = 0xffff, GL_VENDOR = Google Inc. (Google), GL_RENDERER = ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver-5.0.0), GL_VERSION = 5.0.0, Sandboxed = yes, Optimus = no, AMD switchable = no, Reset notification strategy = 0x8252, ErrorMessage = BindToCurrentSequence failed: .
+[2026-04-18T07:23:08.482Z] [error] THREE.WebGLRenderer: Error creating WebGL context.
+[2026-04-18T07:23:08.482Z] [warning] WebGL unavailable, continuing without background scene Error: Error creating WebGL context.
+    at new WebGLRenderer (https://unpkg.com/three@0.160.0/build/three.module.js:28672:13)
+    at initThreeJS (http://localhost:5173/main.js:879:14)
+    at http://localhost:5173/main.js:65:5
+[2026-04-18T07:23:08.483Z] [debug] [vite] connected.
+[2026-04-18T07:23:15.911Z] [debug] [vite] connecting...
+[2026-04-18T07:23:15.918Z] [debug] [vite] connected.
+[2026-04-18T07:23:26.028Z] [debug] [vite] connecting...
+[2026-04-18T07:23:26.049Z] [debug] [vite] connected.
+[2026-04-18T07:23:32.967Z] [debug] [vite] connecting...
+[2026-04-18T07:23:33.042Z] [debug] [vite] connected.
+[2026-04-18T07:23:40.410Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:23:46.690Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:23:55.400Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:24:02.392Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:24:09.075Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:24:16.639Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:24:29.162Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:24:37.434Z] [debug] [vite] connecting...
+[2026-04-18T07:24:37.447Z] [debug] [vite] connected.
+[2026-04-18T07:24:44.835Z] [debug] [vite] connecting...
+[2026-04-18T07:24:44.841Z] [debug] [vite] connected.
+[2026-04-18T07:24:53.199Z] [debug] [vite] connecting...
+[2026-04-18T07:24:53.201Z] [debug] [vite] connected.
+[2026-04-18T07:25:03.582Z] [debug] [vite] connecting...
+[2026-04-18T07:25:03.598Z] [debug] [vite] connected.
+[2026-04-18T07:25:57.171Z] [debug] [vite] connecting...
+[2026-04-18T07:25:57.178Z] [debug] [vite] connected.
+[2026-04-18T07:26:32.539Z] [debug] [vite] connecting...
+[2026-04-18T07:26:32.550Z] [debug] [vite] connected.
+[2026-04-18T07:29:36.226Z] [debug] [vite] connecting...
+[2026-04-18T07:29:36.241Z] [debug] [vite] connected.
+[2026-04-18T07:29:40.365Z] [debug] [vite] connecting...
+[2026-04-18T07:29:40.372Z] [debug] [vite] connected.
+[2026-04-18T07:29:49.559Z] [debug] [vite] connecting...
+[2026-04-18T07:29:49.571Z] [debug] [vite] connected.
+[2026-04-18T07:29:54.941Z] [debug] [vite] connecting...
+[2026-04-18T07:29:54.943Z] [debug] [vite] connected.
+[2026-04-18T07:30:00.731Z] [debug] [vite] connecting...
+[2026-04-18T07:30:00.732Z] [debug] [vite] connected.
+[2026-04-18T07:30:08.158Z] [debug] [vite] connecting...
+[2026-04-18T07:30:08.172Z] [debug] [vite] connected.
+[2026-04-18T07:30:13.071Z] [debug] [vite] connecting...
+[2026-04-18T07:30:13.087Z] [debug] [vite] connected.
+[2026-04-18T07:30:37.451Z] [debug] [vite] connecting...
+[2026-04-18T07:30:37.455Z] [debug] [vite] connected.
+[2026-04-18T07:30:42.375Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:30:48.652Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:30:55.480Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:31:02.927Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:31:09.110Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:31:17.282Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:31:21.763Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:31:43.283Z] [debug] [vite] hot updated: /style.css
+[2026-04-18T07:32:43.886Z] [debug] [vite] connecting...
+[2026-04-18T07:32:43.919Z] [debug] [vite] connected.
+[2026-04-18T07:33:34.159Z] [log] [vite] server connection lost. Polling for restart...
