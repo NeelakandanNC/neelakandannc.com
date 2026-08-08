@@ -102,9 +102,9 @@ export default function Hero() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: reduced ? 0 : 0.85 }}
         >
-          Final-year ECE at NIT Agartala who stopped doing ECE. I build AI agents, trading
-          systems, and research pipelines. Fourteen builds in three years. Most of them taught
-          me something. Some of them worked.
+          Final-year ECE at NIT Agartala. I build AI agents, trading systems, and research
+          pipelines. Fourteen builds in three years. Most of them taught me something. Some of
+          them worked.
         </motion.p>
 
         <motion.div

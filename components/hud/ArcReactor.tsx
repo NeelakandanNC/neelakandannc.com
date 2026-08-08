@@ -28,13 +28,13 @@ import { useHud } from '@/lib/hud';
 
 const CX = 50;
 const CY = 50;
-const R_BEZEL = 47;
+const R_BEZEL = 49;
 const C_BEZEL = 2 * Math.PI * R_BEZEL;
 
 const COIL_COUNT = 10;
-const COIL_INNER = 25.5;
-const COIL_OUTER = 37.5;
-const COIL_GAP_DEG = 7;
+const COIL_INNER = 24;
+const COIL_OUTER = 38;
+const COIL_GAP_DEG = 5;
 
 function polar(r: number, deg: number) {
   const rad = ((deg - 90) * Math.PI) / 180;
@@ -57,24 +57,27 @@ const COILS = Array.from({ length: COIL_COUNT }, (_, i) => {
     polar(COIL_INNER, a1),
   ]);
 
-  // windings: short chords stepping outward across the coil face
-  const windings = [0.28, 0.5, 0.72].map((t) => {
+  // copper windings wrapped across the coil face
+  const windings = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86].map((t) => {
     const r = COIL_INNER + (COIL_OUTER - COIL_INNER) * t;
-    const [x1, y1] = polar(r, a0 + 0.8);
-    const [x2, y2] = polar(r, a1 - 0.8);
+    const [x1, y1] = polar(r, a0 + 0.6);
+    const [x2, y2] = polar(r, a1 - 0.6);
     return { x1, y1, x2, y2 };
   });
 
   return { body, windings };
 });
 
-/** Bezel notches — 24 fine ticks around the rim. */
+/** Housing notches — 24 fine ticks around the rim. */
 const NOTCHES = Array.from({ length: 24 }, (_, i) => {
   const a = i * 15;
-  const [x1, y1] = polar(41.5, a);
-  const [x2, y2] = polar(i % 2 === 0 ? 44.5 : 43.2, a);
+  const [x1, y1] = polar(40.5, a);
+  const [x2, y2] = polar(i % 2 === 0 ? 43.5 : 42.4, a);
   return { x1, y1, x2, y2, major: i % 2 === 0 };
 });
+
+/** Mounting screws set into the housing. */
+const SCREWS = Array.from({ length: 8 }, (_, i) => polar(44.5, i * 45 + 22.5));
 
 /** The triangular core, slightly inset from the housing. */
 const CORE_TRI = fmt([polar(13.5, 0), polar(13.5, 120), polar(13.5, 240)]);
@@ -174,39 +177,60 @@ export default function ArcReactor({ variant = 'fixed', size, className = '' }: 
     >
       <defs>
         <radialGradient id={`${uid}-bloom`}>
-          <stop offset="0%" stopColor={core} stopOpacity="0.55" />
-          <stop offset="55%" stopColor={core} stopOpacity="0.14" />
+          <stop offset="0%" stopColor={core} stopOpacity="0.5" />
+          <stop offset="55%" stopColor={core} stopOpacity="0.13" />
           <stop offset="100%" stopColor={core} stopOpacity="0" />
         </radialGradient>
+        {/* brushed-metal housing */}
+        <linearGradient id={`${uid}-metal`} x1="0" y1="0" x2="0.6" y2="1">
+          <stop offset="0%" stopColor="#e8eef6" />
+          <stop offset="35%" stopColor="#8d9bad" />
+          <stop offset="60%" stopColor="#cfd9e6" />
+          <stop offset="100%" stopColor="#6d7b8d" />
+        </linearGradient>
+        {/* coil mounting plate */}
+        <linearGradient id={`${uid}-plate`} x1="0" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stopColor="#aab7c8" />
+          <stop offset="100%" stopColor="#5f6c7d" />
+        </linearGradient>
+        {/* copper winding */}
+        <linearGradient id={`${uid}-copper`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#f9dc8a" />
+          <stop offset="50%" stopColor="#e0a92e" />
+          <stop offset="100%" stopColor="#a9761b" />
+        </linearGradient>
         <radialGradient id={`${uid}-core`}>
           <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-          <stop offset="45%" stopColor={core} stopOpacity="0.95" />
-          <stop offset="100%" stopColor={core} stopOpacity="0.75" />
+          <stop offset="38%" stopColor="#ffffff" stopOpacity="0.92" />
+          <stop offset="70%" stopColor={core} stopOpacity="0.95" />
+          <stop offset="100%" stopColor={core} stopOpacity="0.7" />
         </radialGradient>
       </defs>
 
       {/* outer bloom */}
       <circle cx={CX} cy={CY} r={49} fill={`url(#${uid}-bloom)`} />
 
-      {/* bezel: two concentric rims */}
-      <circle cx={CX} cy={CY} r={R_BEZEL} fill="none" stroke="var(--arc-dim)" strokeWidth={1.6} />
-      <circle cx={CX} cy={CY} r={43} fill="none" stroke="var(--arc-dim)" strokeWidth={0.7} opacity={0.7} />
-
-      {/* Job 1: scroll-linked fill arc */}
+      {/* Job 1: scroll-linked fill arc, outermost */}
+      <circle cx={CX} cy={CY} r={R_BEZEL} fill="none" stroke="var(--arc-dim)" strokeWidth={1.4} opacity={0.55} />
       <motion.circle
         cx={CX}
         cy={CY}
         r={R_BEZEL}
         fill="none"
         stroke={core}
-        strokeWidth={2.6}
+        strokeWidth={1.8}
         strokeDasharray={C_BEZEL}
         style={{ strokeDashoffset: dashoffset }}
         transform={`rotate(-90 ${CX} ${CY})`}
       />
 
-      {/* rim notches */}
-      <g stroke="var(--arc-dim)">
+      {/* metal housing ring */}
+      <circle cx={CX} cy={CY} r={44} fill="none" stroke={`url(#${uid}-metal)`} strokeWidth={6} />
+      <circle cx={CX} cy={CY} r={41} fill="none" stroke="#0a1220" strokeWidth={1} opacity={0.55} />
+      <circle cx={CX} cy={CY} r={47} fill="none" stroke="#0a1220" strokeWidth={0.8} opacity={0.4} />
+
+      {/* housing notches + mounting screws */}
+      <g stroke="#3f4c5c">
         {NOTCHES.map((n, i) => (
           <line
             key={i}
@@ -214,23 +238,20 @@ export default function ArcReactor({ variant = 'fixed', size, className = '' }: 
             y1={n.y1}
             x2={n.x2}
             y2={n.y2}
-            strokeWidth={n.major ? 1 : 0.5}
-            opacity={n.major ? 0.75 : 0.4}
+            strokeWidth={n.major ? 0.9 : 0.45}
+            opacity={n.major ? 0.8 : 0.5}
           />
         ))}
       </g>
+      {SCREWS.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={1.05} fill="#dbe4ef" stroke="#5c6a7c" strokeWidth={0.35} />
+      ))}
 
-      {/* wound coils */}
+      {/* copper coil assembly */}
       <motion.g style={{ rotate: rotation, originX: '50px', originY: '50px', opacity: coilOpacity }}>
         {COILS.map((c, i) => (
           <g key={i}>
-            <polygon
-              points={c.body}
-              fill={core}
-              opacity={i % 2 === 0 ? 0.42 : 0.24}
-              stroke={core}
-              strokeWidth={0.6}
-            />
+            <polygon points={c.body} fill={`url(#${uid}-plate)`} stroke="#41505f" strokeWidth={0.5} />
             {c.windings.map((w, j) => (
               <line
                 key={j}
@@ -238,23 +259,25 @@ export default function ArcReactor({ variant = 'fixed', size, className = '' }: 
                 y1={w.y1}
                 x2={w.x2}
                 y2={w.y2}
-                stroke={core}
-                strokeWidth={0.55}
-                opacity={0.85}
+                stroke={`url(#${uid}-copper)`}
+                strokeWidth={1.5}
+                strokeLinecap="round"
               />
             ))}
           </g>
         ))}
       </motion.g>
 
-      {/* inner glow ring + core housing */}
-      <circle cx={CX} cy={CY} r={23} fill="none" stroke={core} strokeWidth={1.6} opacity={0.9} />
-      <circle cx={CX} cy={CY} r={21} fill="var(--hangar)" opacity={0.92} />
+      {/* inner housing + glowing well */}
+      <circle cx={CX} cy={CY} r={23} fill="none" stroke={`url(#${uid}-metal)`} strokeWidth={3} />
+      <circle cx={CX} cy={CY} r={20.5} fill="#04070e" />
+      <circle cx={CX} cy={CY} r={19.5} fill="none" stroke={core} strokeWidth={1.6} opacity={0.95} />
+      <circle cx={CX} cy={CY} r={16} fill={core} opacity={0.16} />
 
       {/* triangular core */}
-      <polygon points={CORE_TRI} fill="none" stroke={core} strokeWidth={1.6} />
+      <polygon points={CORE_TRI} fill="none" stroke={core} strokeWidth={1.5} opacity={0.95} />
       <polygon points={CORE_TRI_INNER} fill={`url(#${uid}-core)`} />
-      <circle cx={CX} cy={CY} r={3.6} fill="#ffffff" opacity={0.95} />
+      <circle cx={CX} cy={CY} r={3.2} fill="#ffffff" />
     </motion.svg>
   );
 

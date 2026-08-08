@@ -16,8 +16,8 @@
   --color-gold: #f5c542;
   --color-hotrod: #b71c2b;
 
-  --font-display: var(--font-anton), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), 'Arial Narrow', ui-sans-serif, sans-serif;
+  --font-sans: var(--font-anton), 'Arial Narrow', ui-sans-serif, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
 
   --ease-hud: cubic-bezier(0.22, 1, 0.36, 1);
@@ -138,13 +138,22 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Anton is the whole type system now: regular for body copy, bold for
+   headings and titles. It ships a single weight (400), so headings get
+   700 and the browser synthesises the extra weight — on a face this
+   heavy that reads as a clean step up rather than a smear.
+
+   Anton is a condensed display face, so body copy is given a little
+   extra tracking and leading to keep long paragraphs readable. */
 body {
   margin: 0;
   background: var(--hangar);
   color: var(--readout);
   font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.012em;
   font-size: var(--t-body);
-  line-height: 1.65;
+  line-height: 1.72;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
@@ -162,13 +171,27 @@ body {
   line-height: 1.4;
 }
 
-/* Anton — the display register. Heavy condensed, all-caps.
-   Used for the H1, the Mark numerals + names, and section headings. */
+/* Headings and titles — bold Anton, uppercase. */
 .display {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.01em;
   text-transform: uppercase;
+}
+
+/* Every heading is bold Anton, whether or not it carries .display. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.008em;
+}
+
+strong,
+b {
+  font-weight: 700;
 }
 
 .prose-cave {

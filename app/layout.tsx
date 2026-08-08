@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Anton, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { Anton, IBM_Plex_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
@@ -21,13 +21,6 @@ const anton = Anton({
   variable: '--font-anton',
 });
 
-const plexSans = IBM_Plex_Sans({
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-plex-sans',
-});
-
 const plexMono = IBM_Plex_Mono({
   weight: ['400', '500'],
   subsets: ['latin'],
@@ -38,7 +31,7 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'Neelakandan N C — Mark XIV',
   description:
-    'Final-year ECE at NIT Agartala who stopped doing ECE. AI agents, trading systems, research pipelines. Fourteen builds in three years.',
+    'Final-year ECE at NIT Agartala. AI agents, trading systems, research pipelines. Fourteen builds in three years.',
   metadataBase: new URL('https://neelakandannc.com'),
   openGraph: {
     title: 'Neelakandan N C — Mark XIV',
@@ -88,7 +81,7 @@ document.documentElement.setAttribute('data-boot','');
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${anton.variable} ${plexSans.variable} ${plexMono.variable}`}>
+    <html lang="en" className={`${anton.variable} ${plexMono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: PRE_PAINT }} />
       </head>

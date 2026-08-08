@@ -26,21 +26,38 @@ than an inversion. The initial theme follows the system preference, the toggle
 (top-right) overrides it, and the choice persists in `localStorage`. An inline
 script in `app/layout.tsx` applies it before first paint so there's no flash.
 
-**Type.** Anton for the display register (H1, Mark names, section headings),
-IBM Plex Sans for prose, IBM Plex Mono for every label and readout.
+**Type.** Anton is the whole type system — bold (700) for headings and titles,
+regular (400) for body copy. IBM Plex Mono is kept only for the small telemetry
+labels and readouts, where a condensed display face at 11px would be illegible.
+
+Two things worth knowing if you edit type: Anton ships a **single weight**, so
+bold headings are synthesised by the browser at 700 — on a face this heavy it
+reads as a clean step up. And Anton is a *display* face, so body copy carries
+extra tracking and leading (`letter-spacing: .012em`, `line-height: 1.72`) to
+stay readable in long paragraphs like The Cave. If that section ever feels
+heavy to read, switching `--font-sans` back to a text face is a one-line change
+in `app/globals.css`.
 
 **Contrast.** Both palettes were measured, and the audit is commented in
 `app/globals.css`. The rule that matters when editing: `--arc-dim` and
 `--hotrod` sit near 3:1 and are for **lines and fills only** — anything carrying
 a word uses `--arc-text`, `--hotrod-hi`, `--gold-text` or `--telemetry`.
 
-**The arc reactor** (`components/hud/ArcReactor.tsx`) is original SVG —
-notched bezel, ten wound coils, triangular core, generated geometry throughout.
-No film stills or traced assets: using an actual asset from the film would be
-copyright infringement on a public site, and the spec's own §1 made that a hard
-constraint. It appears three times: the fixed HUD instance, a large faint motif
-in the Hero, and the COMMS core. It also drives four behaviours at once — scroll
-progress, power scaling, section colour, and the Cave instability.
+**The arc reactor** (`components/hud/ArcReactor.tsx`) is original SVG, drawn to
+be screen-accurate: brushed-metal housing with notches and mounting screws, ten
+copper-wound coils on silver plates, an inner glowing well, and a triangular
+core under layered bloom. All generated geometry — no film stills or traced
+assets. It appears three times (fixed HUD instance, a large faint Hero motif,
+the COMMS core) and drives four behaviours at once: scroll progress, power
+scaling, section colour, and the Cave instability.
+
+The favicon set and `public/og.png` are drawn with the same construction by
+`scripts/make-assets.py`, so the icons always match the live component. Re-run
+it after changing the reactor:
+
+```bash
+python3 scripts/make-assets.py    # needs Pillow
+```
 
 ---
 

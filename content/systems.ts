@@ -34,16 +34,23 @@ export const systems: SystemGroup[] = [
       { name: 'RAG + retrieval', filled: 10, grade: 'OPERATIONAL' },
       { name: 'LLM fine-tuning (QLoRA)', filled: 8, grade: 'OPERATIONAL' },
       { name: 'MCP / agent infra', filled: 11, grade: 'PRIMARY' },
+      // Moved here from the old markets group — it's machine learning,
+      // and it's what actually powered TriageAI and the MSME model.
+      { name: 'Gradient boosting ensembles', filled: 11, grade: 'PRIMARY' },
     ],
   },
   {
+    /* Finance and economics, deliberately NOT quant. No stochastic
+       calculus, no derivatives pricing, no financial engineering — this
+       is fundamentals, personal finance and venture thinking. */
     id: 'targeting',
     title: 'TARGETING',
-    subtitle: 'MARKETS & QUANT',
+    subtitle: 'FINANCE & ECONOMICS',
     items: [
-      { name: 'Derivatives / options', filled: 9, grade: 'OPERATIONAL' },
-      { name: 'Gradient boosting ensembles', filled: 11, grade: 'PRIMARY' },
-      { name: 'Financial engineering', filled: 8, grade: 'OPERATIONAL' },
+      { name: 'Fundamental / equity research', filled: 10, grade: 'OPERATIONAL' },
+      { name: 'Personal finance', filled: 11, grade: 'PRIMARY' },
+      { name: 'Venture & startup economics', filled: 9, grade: 'OPERATIONAL' },
+      { name: 'Macro & market structure', filled: 7, grade: 'DEVELOPING' },
     ],
   },
   {
