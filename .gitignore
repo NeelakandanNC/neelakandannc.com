@@ -1,5 +1,12 @@
 node_modules
-dist
-*.local
+.next
+out
+build
 .DS_Store
-.vite
+*.pem
+npm-debug.log*
+.env*
+!.env.example
+.vercel
+next-env.d.ts
+tsconfig.tsbuildinfo

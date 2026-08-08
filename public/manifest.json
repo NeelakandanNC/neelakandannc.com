@@ -1,0 +1,19 @@
+{
+  "name": "Neelakandan N C — Mark XIV",
+  "short_name": "MARK XIV",
+  "description": "Fourteen builds in three years. AI agents, trading systems, research pipelines.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050810",
+  "theme_color": "#050810",
+  "icons": [
+    { "src": "/favicon/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon/favicon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/favicon/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
