@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Michroma, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { Anton, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
@@ -9,15 +9,16 @@ import HudFrame from '@/components/hud/HudFrame';
 import Telemetry from '@/components/hud/Telemetry';
 import ArcReactor from '@/components/hud/ArcReactor';
 import ScanLine from '@/components/hud/ScanLine';
+import ThemeToggle from '@/components/hud/ThemeToggle';
 import BootSequence from '@/components/sections/BootSequence';
 
 /* Self-hosted, subset latin, display:swap with automatic size-adjust
    fallbacks — zero layout shift on font load. */
-const michroma = Michroma({
+const anton = Anton({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-michroma',
+  variable: '--font-anton',
 });
 
 const plexSans = IBM_Plex_Sans({
@@ -64,28 +65,32 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#050810',
-  colorScheme: 'dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#050810' },
+    { media: '(prefers-color-scheme: light)', color: '#eef1f7' },
+  ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" className={`${michroma.variable} ${plexSans.variable} ${plexMono.variable}`}>
-      <head>
-        {/* Decides BEFORE first paint whether the boot sequence plays, so
-            repeat visitors never see it flash. Skipped on repeat visits
-            (sessionStorage) and on prefers-reduced-motion. With JS off the
-            attribute is never set and the overlay stays display:none. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{
+/* Runs before first paint:
+   · applies the stored theme so there's no flash of the wrong palette
+   · decides whether the boot sequence plays (once per session, and never
+     under prefers-reduced-motion)
+   With JS off neither attribute is set: the page renders dark and the
+   boot overlay stays display:none. */
+const PRE_PAINT = `(function(){try{
+var t=localStorage.getItem('mxiv-theme');
+if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);
 if(sessionStorage.getItem('mxiv-boot'))return;
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 sessionStorage.setItem('mxiv-boot','1');
 document.documentElement.setAttribute('data-boot','');
-}catch(e){}})();`,
-          }}
-        />
+}catch(e){}})();`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${anton.variable} ${plexSans.variable} ${plexMono.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PRE_PAINT }} />
       </head>
       <body>
         <HudProvider>
@@ -95,6 +100,7 @@ document.documentElement.setAttribute('data-boot','');
           <HudFrame />
           <Telemetry />
           <ScanLine />
+          <ThemeToggle />
           <ArcReactor />
 
           <main id="top">{children}</main>

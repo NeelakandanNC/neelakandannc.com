@@ -32,7 +32,7 @@ export default function Section({
       className={`relative ${GUTTER} ${className}`}
     >
       {eyebrow ? (
-        <p className="mono mb-10" style={{ color: 'var(--arc-dim)' }}>
+        <p className="mono mb-10" style={{ color: 'var(--arc-text)' }}>
           {eyebrow}
         </p>
       ) : null}

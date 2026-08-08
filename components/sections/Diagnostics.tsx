@@ -43,7 +43,7 @@ export default function Diagnostics() {
       <SuitSchematic />
 
       <div className="mb-14 max-w-[62ch]">
-        <h2 id="diag-title" className="mb-4 font-semibold" style={{ fontSize: 'var(--t-h2)' }}>
+        <h2 id="diag-title" className="display mb-4 leading-[1.02]" style={{ fontSize: 'var(--t-h2)' }}>
           Subsystems, honestly rated.
         </h2>
         <p style={{ color: 'var(--telemetry)' }}>
@@ -58,7 +58,7 @@ export default function Diagnostics() {
             <p className="mono mb-1" style={{ color: 'var(--arc)' }}>
               {group.title}
             </p>
-            <p className="mono mb-6" style={{ color: 'var(--arc-dim)' }}>
+            <p className="mono mb-6" style={{ color: 'var(--telemetry)' }}>
               {group.subtitle}
             </p>
 

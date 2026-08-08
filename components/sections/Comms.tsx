@@ -12,11 +12,9 @@ export default function Comms() {
   return (
     <Section id="comms" labelledBy="comms-title" className="py-32 md:py-44">
       <div className="flex flex-col items-center text-center">
-        <p className="mono mb-8" style={{ color: 'var(--arc-dim)' }}>
-          COMMS <span style={{ color: 'var(--arc)' }}>·</span> CHANNEL OPEN
+        <p className="mono mb-8" style={{ color: 'var(--arc-text)' }}>
+          COMMS <span style={{ color: 'var(--gold)' }}>·</span> CHANNEL OPEN
         </p>
-
-        {/* Michroma use — the display register's last appearance. */}
         <h2
           id="comms-title"
           className="display mb-7"
@@ -28,7 +26,7 @@ export default function Comms() {
         </h2>
 
         <p className="mb-16 max-w-[46ch]" style={{ color: 'var(--telemetry)' }}>
-          Open to AI/ML engineering and quant research roles. Also just open to talking.
+          Open to AI/ML engineering roles. Also just open to talking.
         </p>
 
         <div className="mb-16 hidden md:block">
@@ -38,7 +36,7 @@ export default function Comms() {
         <ul className="grid w-full max-w-4xl gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {channels.map((c) => (
             <li key={c.label} className="text-left">
-              <p className="mono mb-2" style={{ color: 'var(--arc-dim)' }}>
+              <p className="mono mb-2" style={{ color: 'var(--telemetry)' }}>
                 {c.label}
               </p>
               <a

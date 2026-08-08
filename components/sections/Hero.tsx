@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import Section from '@/components/Section';
+import ArcReactor from '@/components/hud/ArcReactor';
 
 const HEADLINE = 'STILL IN THE CAVE';
 
@@ -36,11 +37,23 @@ export default function Hero() {
         }}
       />
 
+      {/* The reactor as a motif — large, faint, sitting in the empty right
+          two-fifths. Desktop only: on mobile the fixed HUD reactor is
+          already on screen and a second one would just be noise. */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-[-6%] top-1/2 hidden -translate-y-1/2 opacity-[0.16] lg:block"
+        animate={{ x: parallax.x * -1.5, y: parallax.y * -1.5 }}
+        transition={{ type: 'spring', stiffness: 50, damping: 22, mass: 0.8 }}
+      >
+        <ArcReactor variant="inline" size={520} />
+      </motion.div>
+
       {/* Content sits left-of-centre. The right two-fifths stay empty so the
           reactor and telemetry have room to breathe. Resist filling it. */}
       <div className="w-full max-w-[62ch] lg:max-w-[54%]">
-        <p className="mono mb-8" style={{ color: 'var(--arc-dim)' }}>
-          MARK XIV <span style={{ color: 'var(--arc)' }}>·</span> BUILD IN PROGRESS
+        <p className="mono mb-8" style={{ color: 'var(--arc-text)' }}>
+          MARK XIV <span style={{ color: 'var(--gold)' }}>·</span> BUILD IN PROGRESS
         </p>
 
         <h1

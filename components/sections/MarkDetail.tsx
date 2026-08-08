@@ -82,18 +82,18 @@ export default function MarkDetail({ mark, onClose }: MarkDetailProps) {
       >
         <div className="mb-6 flex items-start justify-between gap-6">
           <div>
+            <p className="mono mb-2" style={{ color: 'var(--arc-text)' }}>
+              MARK {mark.numeral}
+            </p>
             {/* The shared element. It must travel continuously. */}
             <motion.h2
               id={`mark-detail-${mark.n}`}
-              layoutId={`mark-numeral-${mark.n}`}
-              className="display"
+              layoutId={`mark-head-${mark.n}`}
+              className="display leading-[0.95]"
               style={{ fontSize: 'var(--t-mark)', color: 'var(--readout)' }}
             >
-              MARK {mark.numeral}
-            </motion.h2>
-            <p className="mt-3 text-xl font-semibold" style={{ color: 'var(--readout)' }}>
               {mark.name}
-            </p>
+            </motion.h2>
           </div>
 
           <button
@@ -110,14 +110,14 @@ export default function MarkDetail({ mark, onClose }: MarkDetailProps) {
 
         <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-2">
           <StatusDot status={mark.status} />
-          <span className="mono" style={{ color: 'var(--arc-dim)' }}>
+          <span className="mono" style={{ color: 'var(--telemetry)' }}>
             {mark.category}
           </span>
         </div>
 
         {FIELDS.map(({ key, label }) => (
           <div key={key} className="mb-7">
-            <p className="mono mb-2" style={{ color: 'var(--arc-dim)' }}>
+            <p className="mono mb-2" style={{ color: 'var(--arc-text)' }}>
               {label}
             </p>
             <p className="max-w-[62ch]" style={{ color: 'var(--telemetry)' }}>
@@ -127,7 +127,7 @@ export default function MarkDetail({ mark, onClose }: MarkDetailProps) {
         ))}
 
         <div className="mb-7">
-          <p className="mono mb-2" style={{ color: 'var(--arc-dim)' }}>
+          <p className="mono mb-2" style={{ color: 'var(--arc-text)' }}>
             STACK
           </p>
           <ul className="flex flex-wrap gap-2">

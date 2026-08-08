@@ -19,7 +19,7 @@ export default function HallOfArmor() {
   return (
     <Section id="armor" eyebrow="02 / HALL OF ARMOR" labelledBy="armor-title" className="py-28">
       <div className="mb-4 max-w-[62ch]">
-        <h2 id="armor-title" className="mb-4 font-semibold" style={{ fontSize: 'var(--t-h2)' }}>
+        <h2 id="armor-title" className="display mb-4 leading-[1.02]" style={{ fontSize: 'var(--t-h2)' }}>
           Fourteen suits in three years.
         </h2>
         <p style={{ color: 'var(--telemetry)' }}>

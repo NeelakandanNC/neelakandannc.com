@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useId, useRef } from 'react';
 import {
   motion,
   useAnimationFrame,
@@ -10,52 +10,84 @@ import {
 } from 'framer-motion';
 import { useHud } from '@/lib/hud';
 
-/* ── Geometry ────────────────────────────────────────────────────
-   viewBox 0 0 100 100, centred on (50,50). Everything below is pure
-   SVG + CSS: no images, no libraries, no third-party assets.       */
+/* ═══════════════════════════════════════════════════════════════
+   THE ARC REACTOR — the signature element.
+
+   ORIGINAL ARTWORK. Every line here is generated geometry: a notched
+   outer bezel, ten wound copper coils, an inner glow ring and a
+   triangular core under heavy bloom. No film stills, no traced assets,
+   no third-party IP — the construction is drawn from first principles
+   so the whole thing is code we own.
+
+   It does four jobs at once, which is why it earns its place:
+     1. the outer ring IS the scroll progress bar
+     2. glow and coil speed scale with scroll depth (the page spins up)
+     3. the core shifts colour per section — red in The Cave
+     4. it destabilises in The Cave, then re-stabilises after
+   ═══════════════════════════════════════════════════════════════ */
 
 const CX = 50;
 const CY = 50;
-const R_BEZEL = 46;
+const R_BEZEL = 47;
 const C_BEZEL = 2 * Math.PI * R_BEZEL;
 
 const COIL_COUNT = 10;
-const COIL_INNER = 25;
-const COIL_OUTER = 37;
-const COIL_GAP_DEG = 6;
+const COIL_INNER = 25.5;
+const COIL_OUTER = 37.5;
+const COIL_GAP_DEG = 7;
 
 function polar(r: number, deg: number) {
   const rad = ((deg - 90) * Math.PI) / 180;
   return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)] as const;
 }
 
-/** Ten trapezoid coils, generated once at module scope so server and
-    client render byte-identical markup. */
-const COILS: string[] = Array.from({ length: COIL_COUNT }, (_, i) => {
+const fmt = (pts: ReadonlyArray<readonly [number, number]>) =>
+  pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+
+/** Ten trapezoid coils, each with three winding lines across it. */
+const COILS = Array.from({ length: COIL_COUNT }, (_, i) => {
   const step = 360 / COIL_COUNT;
   const a0 = i * step + COIL_GAP_DEG / 2;
   const a1 = (i + 1) * step - COIL_GAP_DEG / 2;
-  const pts = [
+
+  const body = fmt([
     polar(COIL_INNER, a0),
     polar(COIL_OUTER, a0),
     polar(COIL_OUTER, a1),
     polar(COIL_INNER, a1),
-  ];
-  return pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+  ]);
+
+  // windings: short chords stepping outward across the coil face
+  const windings = [0.28, 0.5, 0.72].map((t) => {
+    const r = COIL_INNER + (COIL_OUTER - COIL_INNER) * t;
+    const [x1, y1] = polar(r, a0 + 0.8);
+    const [x2, y2] = polar(r, a1 - 0.8);
+    return { x1, y1, x2, y2 };
+  });
+
+  return { body, windings };
 });
 
-/** Inner triangular core. */
-const CORE_TRI = [polar(12, 0), polar(12, 120), polar(12, 240)]
-  .map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`)
-  .join(' ');
+/** Bezel notches — 24 fine ticks around the rim. */
+const NOTCHES = Array.from({ length: 24 }, (_, i) => {
+  const a = i * 15;
+  const [x1, y1] = polar(41.5, a);
+  const [x2, y2] = polar(i % 2 === 0 ? 44.5 : 43.2, a);
+  return { x1, y1, x2, y2, major: i % 2 === 0 };
+});
+
+/** The triangular core, slightly inset from the housing. */
+const CORE_TRI = fmt([polar(13.5, 0), polar(13.5, 120), polar(13.5, 240)]);
+const CORE_TRI_INNER = fmt([polar(8.5, 0), polar(8.5, 120), polar(8.5, 240)]);
 
 interface ArcReactorProps {
-  /** `fixed` = the persistent HUD instance. `inline` = the large COMMS core. */
+  /** `fixed` = the persistent HUD instance. `inline` = a decorative core. */
   variant?: 'fixed' | 'inline';
   size?: number;
+  className?: string;
 }
 
-export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps) {
+export default function ArcReactor({ variant = 'fixed', size, className = '' }: ArcReactorProps) {
   const { scrollYProgress, unstable } = useHud();
   const reduced = useReducedMotion();
 
@@ -64,29 +96,26 @@ export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps)
   const jitterY = useMotionValue(0);
   const flicker = useMotionValue(1);
   const pulse = useMotionValue(1);
-
   const stutterUntil = useRef(0);
 
   /* Job 1 — the outer ring IS the scroll progress bar. */
   const dashoffset = useTransform(scrollYProgress, [0, 1], [C_BEZEL, 0]);
 
-  /* Job 2 — the page spins up: glow and coil speed scale with depth. */
-  const glow = useTransform(scrollYProgress, [0, 1], [2, 9]);
-  const glowOpacity = useTransform(scrollYProgress, [0, 1], [0.35, 0.95]);
-  const coilOpacity = useTransform(scrollYProgress, [0, 1], [0.45, 0.9]);
+  /* Job 2 — the page spins up with depth. */
+  const glow = useTransform(scrollYProgress, [0, 1], [3, 12]);
+  const glowOpacity = useTransform(scrollYProgress, [0, 1], [0.4, 1]);
+  const coilOpacity = useTransform(scrollYProgress, [0, 1], [0.55, 1]);
 
   useAnimationFrame((time, delta) => {
-    // Reduced motion: the reactor stops spinning but KEEPS its fill state.
+    // Reduced motion: stops spinning, KEEPS its fill state.
     if (reduced) return;
 
     const depth = scrollYProgress.get();
-    const degPerSec = 6 + depth * 26;
-    rotation.set((rotation.get() + (degPerSec * delta) / 1000) % 360);
+    rotation.set((rotation.get() + ((6 + depth * 26) * delta) / 1000) % 360);
 
-    /* Job 4 — instability. Only in The Cave. An irregular ~2% duty-cycle
-       stutter plus 1px positional jitter: the power core becomes unstable
-       at exactly the moment the copy admits he hasn't figured it out.
-       Nobody consciously notices this. Everybody feels it. */
+    /* Job 4 — instability. Only in The Cave: an irregular ~2% duty-cycle
+       stutter plus 1px jitter. The core becomes unstable at exactly the
+       moment the copy admits he hasn't figured it out. */
     if (!unstable) {
       if (flicker.get() !== 1) flicker.set(1);
       if (jitterX.get() !== 0) {
@@ -113,13 +142,11 @@ export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps)
     }
   });
 
-  /* Job 3 — section identity. Cyan everywhere; hot-rod in The Cave. */
-  const coreColor = unstable ? 'var(--hotrod)' : 'var(--arc)';
-  const ringColor = coreColor;
-
-  // Two reactors exist at once (the fixed HUD one and the large COMMS
-  // core), so the gradient id has to be unique per instance.
-  const bloomId = `reactor-bloom-${variant}`;
+  /* Job 3 — section identity. Blue everywhere; hot-rod red in The Cave. */
+  const core = unstable ? 'var(--hotrod)' : 'var(--arc)';
+  // Several reactors can be on screen at once (fixed HUD, hero motif,
+  // COMMS core), so gradient ids must be unique per instance.
+  const uid = `reactor${useId().replace(/:/g, '')}`;
 
   const dropShadow = useTransform([glow, glowOpacity], ([b, o]: number[]) => {
     const tint = unstable ? 'var(--hotrod)' : 'var(--arc)';
@@ -129,7 +156,6 @@ export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps)
   });
 
   async function handleClick() {
-    // Power-down, then power-up.
     const seq = reduced ? [1] : [0.84, 1.08, 1];
     for (const v of seq) {
       pulse.set(v);
@@ -144,34 +170,27 @@ export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps)
       width="100%"
       height="100%"
       aria-hidden="true"
-      style={{
-        x: jitterX,
-        y: jitterY,
-        opacity: flicker,
-        scale: pulse,
-        filter: dropShadow,
-      }}
+      style={{ x: jitterX, y: jitterY, opacity: flicker, scale: pulse, filter: dropShadow }}
     >
-      {/* soft radial bloom */}
       <defs>
-        <radialGradient id={bloomId}>
-          <stop offset="0%" stopColor={coreColor} stopOpacity="0.5" />
-          <stop offset="55%" stopColor={coreColor} stopOpacity="0.12" />
-          <stop offset="100%" stopColor={coreColor} stopOpacity="0" />
+        <radialGradient id={`${uid}-bloom`}>
+          <stop offset="0%" stopColor={core} stopOpacity="0.55" />
+          <stop offset="55%" stopColor={core} stopOpacity="0.14" />
+          <stop offset="100%" stopColor={core} stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={`${uid}-core`}>
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+          <stop offset="45%" stopColor={core} stopOpacity="0.95" />
+          <stop offset="100%" stopColor={core} stopOpacity="0.75" />
         </radialGradient>
       </defs>
-      <circle cx={CX} cy={CY} r={48} fill={`url(#${bloomId})`} />
 
-      {/* outer bezel */}
-      <circle
-        cx={CX}
-        cy={CY}
-        r={R_BEZEL}
-        fill="none"
-        stroke="var(--arc-dim)"
-        strokeWidth={2}
-        opacity={0.55}
-      />
+      {/* outer bloom */}
+      <circle cx={CX} cy={CY} r={49} fill={`url(#${uid}-bloom)`} />
+
+      {/* bezel: two concentric rims */}
+      <circle cx={CX} cy={CY} r={R_BEZEL} fill="none" stroke="var(--arc-dim)" strokeWidth={1.6} />
+      <circle cx={CX} cy={CY} r={43} fill="none" stroke="var(--arc-dim)" strokeWidth={0.7} opacity={0.7} />
 
       {/* Job 1: scroll-linked fill arc */}
       <motion.circle
@@ -179,30 +198,63 @@ export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps)
         cy={CY}
         r={R_BEZEL}
         fill="none"
-        stroke={ringColor}
-        strokeWidth={2.5}
-        strokeLinecap="butt"
+        stroke={core}
+        strokeWidth={2.6}
         strokeDasharray={C_BEZEL}
         style={{ strokeDashoffset: dashoffset }}
         transform={`rotate(-90 ${CX} ${CY})`}
       />
 
-      {/* segmented coil ring */}
-      <motion.g style={{ rotate: rotation, originX: '50px', originY: '50px', opacity: coilOpacity }}>
-        {COILS.map((points, i) => (
-          <polygon
+      {/* rim notches */}
+      <g stroke="var(--arc-dim)">
+        {NOTCHES.map((n, i) => (
+          <line
             key={i}
-            points={points}
-            fill={i % 2 === 0 ? coreColor : 'var(--arc-dim)'}
-            opacity={i % 2 === 0 ? 0.85 : 0.5}
+            x1={n.x1}
+            y1={n.y1}
+            x2={n.x2}
+            y2={n.y2}
+            strokeWidth={n.major ? 1 : 0.5}
+            opacity={n.major ? 0.75 : 0.4}
           />
+        ))}
+      </g>
+
+      {/* wound coils */}
+      <motion.g style={{ rotate: rotation, originX: '50px', originY: '50px', opacity: coilOpacity }}>
+        {COILS.map((c, i) => (
+          <g key={i}>
+            <polygon
+              points={c.body}
+              fill={core}
+              opacity={i % 2 === 0 ? 0.42 : 0.24}
+              stroke={core}
+              strokeWidth={0.6}
+            />
+            {c.windings.map((w, j) => (
+              <line
+                key={j}
+                x1={w.x1}
+                y1={w.y1}
+                x2={w.x2}
+                y2={w.y2}
+                stroke={core}
+                strokeWidth={0.55}
+                opacity={0.85}
+              />
+            ))}
+          </g>
         ))}
       </motion.g>
 
-      {/* core housing + triangular core */}
-      <circle cx={CX} cy={CY} r={21} fill="var(--hangar)" stroke="var(--arc-dim)" strokeWidth={1} />
-      <polygon points={CORE_TRI} fill={coreColor} opacity={0.95} />
-      <circle cx={CX} cy={CY} r={5} fill="var(--readout)" opacity={0.9} />
+      {/* inner glow ring + core housing */}
+      <circle cx={CX} cy={CY} r={23} fill="none" stroke={core} strokeWidth={1.6} opacity={0.9} />
+      <circle cx={CX} cy={CY} r={21} fill="var(--hangar)" opacity={0.92} />
+
+      {/* triangular core */}
+      <polygon points={CORE_TRI} fill="none" stroke={core} strokeWidth={1.6} />
+      <polygon points={CORE_TRI_INNER} fill={`url(#${uid}-core)`} />
+      <circle cx={CX} cy={CY} r={3.6} fill="#ffffff" opacity={0.95} />
     </motion.svg>
   );
 
@@ -211,7 +263,7 @@ export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps)
       <div
         aria-hidden="true"
         style={{ width: size ?? 180, height: size ?? 180 }}
-        className="shrink-0"
+        className={`shrink-0 ${className}`}
       >
         {svg}
       </div>
@@ -226,7 +278,7 @@ export default function ArcReactor({ variant = 'fixed', size }: ArcReactorProps)
       /* Sits above the bottom-right depth readout so the two never collide. */
       className="fixed z-50 cursor-pointer border-0 bg-transparent p-0
                  bottom-7 left-1/2 -translate-x-1/2 h-[52px] w-[52px]
-                 md:left-auto md:translate-x-0 md:right-9 md:bottom-20 md:h-[72px] md:w-[72px]"
+                 md:left-auto md:translate-x-0 md:right-9 md:bottom-20 md:h-[76px] md:w-[76px]"
     >
       {svg}
     </button>

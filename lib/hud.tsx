@@ -25,8 +25,7 @@ export const SECTIONS: SectionInfo[] = [
   { id: 'diagnostics', index: '03', label: 'SYSTEMS DIAGNOSTIC' },
   { id: 'cave', index: '04', label: 'CAVE' },
   { id: 'current', index: '05', label: 'CURRENT BUILD' },
-  { id: 'log', index: '06', label: 'FLIGHT LOG' },
-  { id: 'comms', index: '07', label: 'COMMS' },
+  { id: 'comms', index: '06', label: 'COMMS' },
 ];
 
 interface HudContextValue {

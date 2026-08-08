@@ -55,7 +55,7 @@ export default function Telemetry() {
   return (
     <>
       <div className={`${cornerBase} left-5 top-5 md:left-9 md:top-9`} style={{ color: 'var(--telemetry)' }}>
-        NEELAKANDAN N C <span style={{ color: 'var(--arc-dim)' }}>·</span> MARK XIV
+        NEELAKANDAN N C <span style={{ color: 'var(--telemetry)' }}>·</span> MARK XIV
       </div>
 
       <div

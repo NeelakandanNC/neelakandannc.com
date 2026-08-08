@@ -3,7 +3,6 @@ import HallOfArmor from '@/components/sections/HallOfArmor';
 import Diagnostics from '@/components/sections/Diagnostics';
 import TheCave from '@/components/sections/TheCave';
 import CurrentBuild from '@/components/sections/CurrentBuild';
-import FlightLog from '@/components/sections/FlightLog';
 import Comms from '@/components/sections/Comms';
 
 export default function Page() {
@@ -14,7 +13,6 @@ export default function Page() {
       <Diagnostics />
       <TheCave />
       <CurrentBuild />
-      <FlightLog />
       <Comms />
     </>
   );

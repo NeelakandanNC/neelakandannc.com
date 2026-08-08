@@ -2,61 +2,122 @@
 
 /* ═══════════════════════════════════════════════════════════════
    MARK XIV — token layer
-   Blue-shifted black. A lit instrument in a dark hangar.
+
+   Neon blue #3a86ff is the primary. Red and gold are the supporting
+   accents, used as armour trim rather than decoration.
+
+   Two themes. Dark is the design's home ("a lit instrument in a dark
+   hangar"); light is a full second palette, not an inversion. The theme
+   is chosen before first paint by the inline script in app/layout.tsx.
    ═══════════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-hangar: #050810;
-  --color-plate: #0b1220;
-  --color-plate-hi: #131e30;
-  --color-arc: #5fe3f5;
-  --color-arc-dim: #2a6b78;
-  --color-hotrod: #b71c2b;
-  --color-hotrod-hi: #ff5a6e;
+  --color-arc: #3a86ff;
   --color-gold: #f5c542;
-  --color-telemetry: #8a97a8;
-  --color-readout: #e8f4f8;
+  --color-hotrod: #b71c2b;
 
-  --font-display: var(--font-michroma), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
 
   --ease-hud: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ── DARK (default) ─────────────────────────────────────────────
+   Contrast on --hangar #050810:
+     --readout  #E8F4F8  17.86:1   --arc-text #7DB3FF   9.31:1
+     --telemetry #8A97A8  6.74:1   --arc      #3A86FF   5.75:1
+     --gold     #F5C542  12.35:1   --hotrod-hi #FF5A6E  6.62:1
+   --arc-dim and --hotrod are LINES AND FILLS ONLY — both sit near 3:1
+   and would fail as text. Anything carrying a word uses the -text /
+   -hi variant instead.                                              */
 :root {
-  /* raw values, for use outside Tailwind's utility layer */
   --hangar: #050810;
   --plate: #0b1220;
   --plate-hi: #131e30;
-  --arc: #5fe3f5;
-  --arc-dim: #2a6b78;
+
+  --arc: #3a86ff;
+  --arc-text: #7db3ff;
+  --arc-dim: #1e4e8c;
+
   --hotrod: #b71c2b;
+  --hotrod-hi: #ff5a6e;
+
   --gold: #f5c542;
+  --gold-text: #f5c542;
+
   --telemetry: #8a97a8;
   --readout: #e8f4f8;
 
-  /* ── Contrast audit (spec §12 flagged --telemetry as "verify this") ──
-     Measured against --hangar #050810:
-       --telemetry #8A97A8 ...  6.74:1  PASS — spec value kept as-is
-       --readout   #E8F4F8 ... 17.86:1  PASS
-       --arc       #5FE3F5 ... 13.15:1  PASS
-       --gold      #F5C542 ... 12.35:1  PASS
-       --arc-dim   #2A6B78 ...  3.31:1  FAIL as text / PASS as non-text
-       --hotrod    #B71C2B ...  3.07:1  FAIL as text / PASS as non-text
+  --grid-line: color-mix(in srgb, var(--arc) 14%, transparent);
+  --shadow-plate: 0 0 0 transparent;
+  /* The Cave darkens below the page ground. */
+  --cave: #020408;
 
-     So --arc-dim and --hotrod are used for LINES, BORDERS, DOTS and
-     GLOWS only — never for text. Spec §2.3 sets the corner telemetry
-     readouts in --arc-dim at 11px; that would breach the 4.5:1 floor in
-     the acceptance checklist, so the readout TEXT uses --telemetry while
-     the frame strokes around it stay --arc-dim. Same trade for hot-rod:
-     --hotrod fills, --hotrod-hi (6.62:1) whenever it carries a word. */
-  --hotrod-hi: #ff5a6e;
+  color-scheme: dark;
+}
 
+/* ── LIGHT ──────────────────────────────────────────────────────
+   Contrast on --hangar #EEF1F7:
+     --readout  #0B1220  16.55:1   --arc-text #1B4FB0   6.65:1
+     --telemetry #4A5768  6.50:1   --hotrod-hi #A3121F  6.97:1
+     --gold-text #7A5E00  5.41:1
+   --gold stays bright for FILLS; --gold-text is the darkened variant
+   used whenever gold carries a word.                                */
+:root[data-theme='light'] {
+  --hangar: #eef1f7;
+  --plate: #ffffff;
+  --plate-hi: #e3e9f5;
+
+  --arc: #2f6fe0;
+  --arc-text: #1b4fb0;
+  --arc-dim: #a9b6cc;
+
+  --hotrod: #a3121f;
+  --hotrod-hi: #a3121f;
+
+  --gold: #c9a227;
+  --gold-text: #7a5e00;
+
+  --telemetry: #4a5768;
+  --readout: #0b1220;
+
+  --grid-line: color-mix(in srgb, var(--arc) 12%, transparent);
+  --shadow-plate: 0 1px 2px rgb(11 18 32 / 0.06), 0 8px 24px rgb(11 18 32 / 0.06);
+  /* In light theme The Cave cools and deepens rather than going black. */
+  --cave: #dfe5f0;
+
+  color-scheme: light;
+}
+
+/* System preference is the initial default; the toggle overrides it by
+   stamping data-theme on <html>. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']):not([data-theme='light']) {
+    --hangar: #eef1f7;
+    --plate: #ffffff;
+    --plate-hi: #e3e9f5;
+    --arc: #2f6fe0;
+    --arc-text: #1b4fb0;
+    --arc-dim: #a9b6cc;
+    --hotrod: #a3121f;
+    --hotrod-hi: #a3121f;
+    --gold: #c9a227;
+    --gold-text: #7a5e00;
+    --telemetry: #4a5768;
+    --readout: #0b1220;
+    --grid-line: color-mix(in srgb, var(--arc) 12%, transparent);
+    --shadow-plate: 0 1px 2px rgb(11 18 32 / 0.06), 0 8px 24px rgb(11 18 32 / 0.06);
+    --cave: #dfe5f0;
+    color-scheme: light;
+  }
+}
+
+:root {
   /* type scale — 1.333, tightened at the top */
-  --t-hero: clamp(2.6rem, 7.5vw, 6.4rem);
+  --t-hero: clamp(2.9rem, 9vw, 7.5rem);
   --t-mark: clamp(2rem, 5vw, 4rem);
-  --t-h2: clamp(1.6rem, 3.2vw, 2.6rem);
+  --t-h2: clamp(1.7rem, 3.4vw, 2.9rem);
   --t-h3: 1.25rem;
   --t-body: 1.0625rem;
   --t-label: 0.75rem;
@@ -65,9 +126,6 @@
   --d-micro: 120ms;
   --d-reveal: 420ms;
   --d-section: 700ms;
-
-  --frame-inset: 24px;
-  color-scheme: dark;
 }
 
 * {
@@ -90,6 +148,9 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  transition:
+    background-color 300ms var(--ease),
+    color 300ms var(--ease);
 }
 
 /* ── Telemetry register ─────────────────────────────────────── */
@@ -101,13 +162,13 @@ body {
   line-height: 1.4;
 }
 
-/* Michroma. Used FIVE TIMES OR FEWER on the page — see spec §12.
-   Current uses: (1) hero H1, (2) Mark numerals, (3) Cave opening line,
-   (4) Comms H2, (5) boot wordmark. Do not add a sixth. */
+/* Anton — the display register. Heavy condensed, all-caps.
+   Used for the H1, the Mark numerals + names, and section headings. */
 .display {
   font-family: var(--font-display);
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .prose-cave {
@@ -123,19 +184,19 @@ body {
 
 ::selection {
   background: var(--arc);
-  color: var(--hangar);
+  color: #fff;
 }
 
 /* ── Ambient hangar grid ────────────────────────────────────── */
 .hud-grid {
   background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--arc-dim) 12%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--arc-dim) 12%, transparent) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
 .hairline {
-  border: 1px solid color-mix(in srgb, var(--arc-dim) 55%, transparent);
+  border: 1px solid var(--arc-dim);
 }
 
 /* ── Link underline draw, left→right over 180ms ─────────────── */
@@ -169,18 +230,18 @@ body {
 .hud-cta:focus-visible {
   color: var(--readout);
   border-color: var(--arc);
-  background: color-mix(in srgb, var(--arc) 8%, transparent);
+  background: color-mix(in srgb, var(--arc) 10%, transparent);
 }
 
 .hud-cta--primary {
   border-color: var(--arc);
-  color: var(--arc);
+  color: var(--arc-text);
 }
 
 .hud-cta--primary:hover,
 .hud-cta--primary:focus-visible {
   background: var(--arc);
-  color: var(--hangar);
+  color: #fff;
 }
 
 /* ── Mark cards ─────────────────────────────────────────────── */
@@ -189,7 +250,8 @@ body {
   flex-direction: column;
   padding: 1.4rem;
   background: var(--plate);
-  border: 1px solid color-mix(in srgb, var(--arc-dim) 55%, transparent);
+  border: 1px solid var(--arc-dim);
+  box-shadow: var(--shadow-plate);
   cursor: pointer;
   transition:
     background-color var(--d-micro) var(--ease),
@@ -211,10 +273,10 @@ body {
 
 .mark-card:hover .mark-card__stack,
 .mark-card:focus-visible .mark-card__stack {
-  color: var(--arc);
+  color: var(--arc-text);
 }
 
-/* ACTIVE status only. The single looping animation outside the scan line. */
+/* ACTIVE status only. */
 .status-pulse {
   animation: status-pulse 2.4s var(--ease) infinite;
 }
@@ -223,11 +285,9 @@ body {
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--arc) 55%, transparent);
   }
   50% {
-    opacity: 0.55;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--arc) 0%, transparent);
+    opacity: 0.45;
   }
 }
 
@@ -240,16 +300,15 @@ body {
   background: var(--hangar);
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--arc-dim) 60%, transparent);
-  border-radius: 0;
+  background: var(--arc-dim);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--arc-dim);
+  background: var(--arc);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Reduced motion — the page must stay fully comprehensible
-   with zero motion. Scroll-linked fills become their end state.
+   Reduced motion — the page stays fully comprehensible with zero
+   motion. Scroll-linked fills jump to their end state.
    ═══════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   html {

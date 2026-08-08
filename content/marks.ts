@@ -263,7 +263,16 @@ export const marks: Mark[] = [
   },
 ];
 
-/** Gold markers. Five maximum, sitewide — see spec §2.1. */
+/**
+ * ⚠️ CURRENTLY UNRENDERED. These used to appear as the gold ◆ markers in
+ * the Flight Log, which has been removed from the site. Three of them —
+ * the SRCC placing, the merged PR, and the YC application — aren't stated
+ * anywhere else, so they are no longer visible to a recruiter.
+ *
+ * Kept here so putting them back is a render away. Say the word and they
+ * can go somewhere else (a compact strip under the Hall of Armor header
+ * would fit without reintroducing a timeline).
+ */
 export const achievements: string[] = [
   'NSCIF 2026 finalist — TriageAI, from 1,000+ teams',
   'SRCC Derivatives Challenge 2025 — 3rd place, 4% single-day return on ₹5L',

@@ -44,16 +44,17 @@ export default function TheCave() {
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
           background:
-            'radial-gradient(ellipse at 50% 45%, #020408 0%, #020408 55%, var(--hangar) 100%)',
+            'radial-gradient(ellipse at 50% 45%, var(--cave) 0%, var(--cave) 55%, var(--hangar) 100%)',
         }}
       />
 
       <div className="mx-auto prose-cave">
         <p className="mono mb-12" style={{ color: 'var(--hotrod-hi)' }}>
-          04 / CAVE <span style={{ color: 'var(--arc-dim)' }}>·</span> POWER UNSTABLE
+          04 / CAVE <span style={{ color: 'var(--telemetry)' }}>·</span> POWER UNSTABLE
         </p>
 
-        {/* Not Michroma: §2.2 reserves it for the H1 and the Mark numerals. */}
+        {/* Plex Sans, not the display face: in The Cave the HUD language
+            drops away and the page just talks. */}
         <motion.h2
           id="cave-title"
           className="mb-14 font-semibold"
